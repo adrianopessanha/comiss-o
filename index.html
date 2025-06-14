@@ -180,7 +180,7 @@
                         <option value="Assinatura">Assinatura</option>
                         <option value="Cartão Presente">Cartão Presente</option>
                     </select>
-                    <input type="number" id="editProductsSold" placeholder="Qtd. Produtos" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
+                    <input type="number" id="editProductsSold" placeholder="Qtd. Produtos" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
                 </div>
                 <button id="saveEditBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-save"></i> Salvar Alterações
@@ -195,16 +195,18 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, query, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // CONFIG & INITIALIZATION
-        // ATENÇÃO: Substitua este objeto pela configuração do SEU projeto Firebase.
+        // *****************************************************************
+        // ATENÇÃO: COLE AQUI A CONFIGURAÇÃO DO SEU PROJETO FIREBASE!
+        // Você obtém isso no painel do seu projeto > Configurações do Projeto.
+        // O aplicativo NÃO FUNCIONARÁ sem a sua chave pessoal.
+        // *****************************************************************
         const firebaseConfig = {
-          apiKey: "AIzaSyAOrTcxD_3nnFGytaaNN-xa087Hel00IRU",
-          authDomain: "comisao-dos-barbeiros.firebaseapp.com",
-          projectId: "comisao-dos-barbeiros",
-          storageBucket: "comisao-dos-barbeiros.appspot.com",
-          messagingSenderId: "571199864529",
-          appId: "1:571199864529:web:0ea9584c0c5372192e4ff0",
-          measurementId: "G-VW7EZCR5G5"
+            apiKey: "COLE_SUA_API_KEY_AQUI",
+            authDomain: "COLE_SEU_AUTH_DOMAIN_AQUI",
+            projectId: "COLE_SEU_PROJECT_ID_AQUI",
+            storageBucket: "COLE_SEU_STORAGE_BUCKET_AQUI",
+            messagingSenderId: "COLE_SEU_MESSAGING_SENDER_ID_AQUI",
+            appId: "COLE_SEU_APP_ID_AQUI"
         };
         
         let db;
@@ -270,6 +272,11 @@
 
         // FIREBASE & MAIN LOGIC
         async function initializeAppAndAuth() {
+            if (firebaseConfig.apiKey === "COLE_SUA_API_KEY_AQUI") {
+                 alert("ERRO: A configuração do Firebase não foi adicionada ao código. Por favor, edite o arquivo index.html e adicione suas chaves.");
+                 return;
+            }
+
             try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
@@ -280,7 +287,11 @@
                 setupUI();
             } catch (error) {
                 console.error("Firebase Init Error:", error);
-                alert("Erro ao inicializar o Firebase. Verifique a configuração e as regras de segurança.");
+                if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
+                    alert("ERRO DE CONFIGURAÇÃO DO FIREBASE:\n\nPara o aplicativo funcionar, você precisa ATIVAR o provedor de login 'Anônimo'.\n\nCOMO RESOLVER:\n1. Vá ao seu painel do Firebase.\n2. No menu, clique em 'Authentication'.\n3. Clique na aba 'Sign-in method'.\n4. Encontre 'Anônimo' na lista e clique no lápis para editar.\n5. ATIVE a chave e clique em 'Salvar'.\n\nDepois disso, atualize a página.");
+                } else {
+                    alert("ERRO CRÍTICO: Não foi possível inicializar o Firebase. Detalhes: " + error.message);
+                }
             }
         }
 
@@ -294,8 +305,8 @@
                 } else {
                     mainContent.classList.add('hidden');
                     historySection.classList.add('hidden');
-                    unsubscribeWeeklyData();
-                    unsubscribeHistory();
+                    if (unsubscribeWeeklyData) unsubscribeWeeklyData();
+                    if (unsubscribeHistory) unsubscribeHistory();
                 }
             });
 
@@ -304,7 +315,7 @@
             ).join('');
 
             const todayIndex = new Date().getDay();
-            selectedDay = weekDays[todayIndex] ? weekDays[todayIndex] : 2;
+            selectedDay = (todayIndex >= 2 && todayIndex <= 6) ? todayIndex : 2;
             updateDaySelection();
 
             daySelector.querySelectorAll('.day-btn').forEach(btn => {
@@ -329,8 +340,8 @@
         }
 
         function startListeners() {
-            unsubscribeWeeklyData();
-            unsubscribeHistory();
+            if (unsubscribeWeeklyData) unsubscribeWeeklyData();
+            if (unsubscribeHistory) unsubscribeHistory();
             listenToWeeklyData();
             listenToClosingsHistory();
         }
@@ -384,7 +395,7 @@
                 await setDoc(docRef, newData);
             } catch (error) {
                 console.error("Error updating Firestore:", error);
-                alert("Erro ao salvar os dados. Verifique suas regras de segurança no Firebase.");
+                alert("ERRO AO SALVAR DADOS: Verifique suas Regras de Segurança no painel do Firebase. Detalhes: " + error.message);
             }
         }
 
@@ -483,6 +494,7 @@
                 calculateWeeklySummary();
             }, (error) => {
                 console.error("Error listening to weekly data:", error);
+                alert("ERRO AO CARREGAR DADOS: Verifique suas Regras de Segurança no painel do Firebase. O acesso pode estar bloqueado. Detalhes: " + error.message);
             });
         }
 
@@ -596,6 +608,7 @@
                 });
             }, (error) => {
                 console.error("Error listening to history:", error);
+                alert("ERRO AO CARREGAR HISTÓRICO: Verifique suas Regras de Segurança no painel do Firebase. Detalhes: " + error.message);
             });
         }
 

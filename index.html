@@ -180,7 +180,7 @@
                         <option value="Assinatura">Assinatura</option>
                         <option value="Cartão Presente">Cartão Presente</option>
                     </select>
-                    <input type="number" id="editProductsSold" placeholder="Qtd. Produtos" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                    <input type="number" id="editProductsSold" placeholder="Qtd. Produtos" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
                 </div>
                 <button id="saveEditBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-save"></i> Salvar Alterações
@@ -192,18 +192,28 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, query, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-const firebaseConfig = {
-  apiKey: "AIzaSyAOrTcxD_3nnFGytaaNN-xa087Hel00IRU",
-  authDomain: "comisao-dos-barbeiros.firebaseapp.com",
-  projectId: "comisao-dos-barbeiros",
-  storageBucket: "comisao-dos-barbeiros.firebasestorage.app",
-  messagingSenderId: "571199864529",
-  appId: "1:571199864529:web:0ea9584c0c5372192e4ff0",
-  measurementId: "G-VW7EZCR5G5"
-};  
+
+        // CONFIG & INITIALIZATION
+        // This setup allows the app to work both in the development environment and when deployed.
+        // It prioritizes the injected environment config but falls back to the hardcoded one.
+        const hardcodedConfig = {
+          apiKey: "AIzaSyAOrTcxD_3nnFGytaaNN-xa087Hel00IRU",
+          authDomain: "comisao-dos-barbeiros.firebaseapp.com",
+          projectId: "comisao-dos-barbeiros",
+          storageBucket: "comisao-dos-barbeiros.appspot.com",
+          messagingSenderId: "571199864529",
+          appId: "1:571199864529:web:0ea9584c0c5372192e4ff0",
+          measurementId: "G-VW7EZCR5G5"
+        };
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : hardcodedConfig;
         
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'barber-weekly-commission';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const inCanvas = typeof __app_id !== 'undefined';
+
+
         let db;
         let selectedBarberId = null;
         let currentWeekId;
@@ -267,26 +277,20 @@ const firebaseConfig = {
 
         // FIREBASE & MAIN LOGIC
         async function initializeAppAndAuth() {
-            if (firebaseConfig.apiKey === "COLE_SUA_API_KEY_AQUI") {
-                 alert("ERRO: A configuração do Firebase não foi adicionada ao código. Por favor, edite o arquivo index.html e adicione suas chaves.");
-                 return;
-            }
-
             try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 const auth = getAuth(app);
-                await signInAnonymously(auth);
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
                 
                 currentWeekId = getWeekId(new Date());
                 setupUI();
             } catch (error) {
                 console.error("Firebase Init Error:", error);
-                if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
-                    alert("ERRO DE CONFIGURAÇÃO DO FIREBASE:\n\nPara o aplicativo funcionar, você precisa ATIVAR o provedor de login 'Anônimo'.\n\nCOMO RESOLVER:\n1. Vá ao seu painel do Firebase.\n2. No menu, clique em 'Authentication'.\n3. Clique na aba 'Sign-in method'.\n4. Encontre 'Anônimo' na lista e clique no lápis para editar.\n5. ATIVE a chave e clique em 'Salvar'.\n\nDepois disso, atualize a página.");
-                } else {
-                    alert("ERRO CRÍTICO: Não foi possível inicializar o Firebase. Detalhes: " + error.message);
-                }
             }
         }
 
@@ -300,8 +304,8 @@ const firebaseConfig = {
                 } else {
                     mainContent.classList.add('hidden');
                     historySection.classList.add('hidden');
-                    if (unsubscribeWeeklyData) unsubscribeWeeklyData();
-                    if (unsubscribeHistory) unsubscribeHistory();
+                    unsubscribeWeeklyData();
+                    unsubscribeHistory();
                 }
             });
 
@@ -310,7 +314,7 @@ const firebaseConfig = {
             ).join('');
 
             const todayIndex = new Date().getDay();
-            selectedDay = (todayIndex >= 2 && todayIndex <= 6) ? todayIndex : 2;
+            selectedDay = weekDays[todayIndex] ? todayIndex : 2;
             updateDaySelection();
 
             daySelector.querySelectorAll('.day-btn').forEach(btn => {
@@ -335,10 +339,22 @@ const firebaseConfig = {
         }
 
         function startListeners() {
-            if (unsubscribeWeeklyData) unsubscribeWeeklyData();
-            if (unsubscribeHistory) unsubscribeHistory();
+            unsubscribeWeeklyData();
+            unsubscribeHistory();
             listenToWeeklyData();
             listenToClosingsHistory();
+        }
+
+        function getCollectionPath(baseCollection) {
+            if (inCanvas) {
+                return ["artifacts", appId, "public", "data", baseCollection];
+            }
+            return [baseCollection];
+        }
+
+        function getDocPath(baseCollection, docId) {
+            const collectionPath = getCollectionPath(baseCollection);
+            return [...collectionPath, docId];
         }
         
         function updateDaySelection() {
@@ -386,11 +402,11 @@ const firebaseConfig = {
         async function updateFirestoreData(newData) {
              if (!selectedBarberId) return;
              try {
-                const docRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);
+                const docRef = doc(db, ...getDocPath("barbers", selectedBarberId), "weekly_entries", currentWeekId);
                 await setDoc(docRef, newData);
             } catch (error) {
                 console.error("Error updating Firestore:", error);
-                alert("ERRO AO SALVAR DADOS: Verifique suas Regras de Segurança no painel do Firebase. Detalhes: " + error.message);
+                alert("Erro ao salvar os dados.");
             }
         }
 
@@ -482,14 +498,13 @@ const firebaseConfig = {
         
         function listenToWeeklyData() {
             if (!selectedBarberId) return;
-            const docRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);
+            const docRef = doc(db, ...getDocPath("barbers", selectedBarberId), "weekly_entries", currentWeekId);
             unsubscribeWeeklyData = onSnapshot(docRef, (docSnap) => {
                 weeklyData = docSnap.exists() ? docSnap.data() : {};
                 renderDailyLog();
                 calculateWeeklySummary();
             }, (error) => {
                 console.error("Error listening to weekly data:", error);
-                alert("ERRO AO CARREGAR DADOS: Verifique suas Regras de Segurança no painel do Firebase. O acesso pode estar bloqueado. Detalhes: " + error.message);
             });
         }
 
@@ -557,7 +572,7 @@ const firebaseConfig = {
             const periodo = `${weekStartDate.toLocaleDateString('pt-BR')} - ${weekEndDate.toLocaleDateString('pt-BR')}`;
             
             try {
-                const historyCollectionRef = collection(db, "barbers", selectedBarberId, "weekly_closings");
+                const historyCollectionRef = collection(db, ...getCollectionPath("barbers"), selectedBarberId, "weekly_closings");
                 await addDoc(historyCollectionRef, {
                     weekId: currentWeekId,
                     periodo,
@@ -568,7 +583,7 @@ const firebaseConfig = {
                     details: weeklyData
                 });
 
-                const weekDocRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);
+                const weekDocRef = doc(db, ...getDocPath("barbers", selectedBarberId), "weekly_entries", currentWeekId);
                 await deleteDoc(weekDocRef);
                 
                 alert(`Semana ${periodo} fechada com sucesso! Comissão final: ${formatCurrency(comissaoFinal)}.`);
@@ -581,7 +596,7 @@ const firebaseConfig = {
         
         function listenToClosingsHistory() {
             if (!selectedBarberId) return;
-            const historyCollectionRef = collection(db, "barbers", selectedBarberId, "weekly_closings");
+            const historyCollectionRef = collection(db, ...getCollectionPath("barbers"), selectedBarberId, "weekly_closings");
             const q = query(historyCollectionRef);
             unsubscribeHistory = onSnapshot(q, (snapshot) => {
                 historyTableBody.innerHTML = '';
@@ -603,7 +618,6 @@ const firebaseConfig = {
                 });
             }, (error) => {
                 console.error("Error listening to history:", error);
-                alert("ERRO AO CARREGAR HISTÓRICO: Verifique suas Regras de Segurança no painel do Firebase. Detalhes: " + error.message);
             });
         }
 
@@ -611,3 +625,4 @@ const firebaseConfig = {
     </script>
 </body>
 </html>
+```

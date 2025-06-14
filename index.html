@@ -192,13 +192,12 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, query, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // CONFIG & INITIALIZATION
-        // This setup allows the app to work both in the development environment and when deployed.
-        // It prioritizes the injected environment config but falls back to the hardcoded one.
-        const hardcodedConfig = {
+        // ATENÇÃO: Substitua este objeto pela configuração do SEU projeto Firebase.
+        const firebaseConfig = {
           apiKey: "AIzaSyAOrTcxD_3nnFGytaaNN-xa087Hel00IRU",
           authDomain: "comisao-dos-barbeiros.firebaseapp.com",
           projectId: "comisao-dos-barbeiros",
@@ -207,13 +206,7 @@
           appId: "1:571199864529:web:0ea9584c0c5372192e4ff0",
           measurementId: "G-VW7EZCR5G5"
         };
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : hardcodedConfig;
         
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'barber-weekly-commission';
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        const inCanvas = typeof __app_id !== 'undefined';
-
-
         let db;
         let selectedBarberId = null;
         let currentWeekId;
@@ -281,16 +274,13 @@
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 const auth = getAuth(app);
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                await signInAnonymously(auth);
                 
                 currentWeekId = getWeekId(new Date());
                 setupUI();
             } catch (error) {
                 console.error("Firebase Init Error:", error);
+                alert("Erro ao inicializar o Firebase. Verifique a configuração e as regras de segurança.");
             }
         }
 
@@ -314,7 +304,7 @@
             ).join('');
 
             const todayIndex = new Date().getDay();
-            selectedDay = weekDays[todayIndex] ? todayIndex : 2;
+            selectedDay = weekDays[todayIndex] ? weekDays[todayIndex] : 2;
             updateDaySelection();
 
             daySelector.querySelectorAll('.day-btn').forEach(btn => {
@@ -343,18 +333,6 @@
             unsubscribeHistory();
             listenToWeeklyData();
             listenToClosingsHistory();
-        }
-
-        function getCollectionPath(baseCollection) {
-            if (inCanvas) {
-                return ["artifacts", appId, "public", "data", baseCollection];
-            }
-            return [baseCollection];
-        }
-
-        function getDocPath(baseCollection, docId) {
-            const collectionPath = getCollectionPath(baseCollection);
-            return [...collectionPath, docId];
         }
         
         function updateDaySelection() {
@@ -402,11 +380,11 @@
         async function updateFirestoreData(newData) {
              if (!selectedBarberId) return;
              try {
-                const docRef = doc(db, ...getDocPath("barbers", selectedBarberId), "weekly_entries", currentWeekId);
+                const docRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);
                 await setDoc(docRef, newData);
             } catch (error) {
                 console.error("Error updating Firestore:", error);
-                alert("Erro ao salvar os dados.");
+                alert("Erro ao salvar os dados. Verifique suas regras de segurança no Firebase.");
             }
         }
 
@@ -498,7 +476,7 @@
         
         function listenToWeeklyData() {
             if (!selectedBarberId) return;
-            const docRef = doc(db, ...getDocPath("barbers", selectedBarberId), "weekly_entries", currentWeekId);
+            const docRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);
             unsubscribeWeeklyData = onSnapshot(docRef, (docSnap) => {
                 weeklyData = docSnap.exists() ? docSnap.data() : {};
                 renderDailyLog();
@@ -572,7 +550,7 @@
             const periodo = `${weekStartDate.toLocaleDateString('pt-BR')} - ${weekEndDate.toLocaleDateString('pt-BR')}`;
             
             try {
-                const historyCollectionRef = collection(db, ...getCollectionPath("barbers"), selectedBarberId, "weekly_closings");
+                const historyCollectionRef = collection(db, "barbers", selectedBarberId, "weekly_closings");
                 await addDoc(historyCollectionRef, {
                     weekId: currentWeekId,
                     periodo,
@@ -583,7 +561,7 @@
                     details: weeklyData
                 });
 
-                const weekDocRef = doc(db, ...getDocPath("barbers", selectedBarberId), "weekly_entries", currentWeekId);
+                const weekDocRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);
                 await deleteDoc(weekDocRef);
                 
                 alert(`Semana ${periodo} fechada com sucesso! Comissão final: ${formatCurrency(comissaoFinal)}.`);
@@ -596,7 +574,7 @@
         
         function listenToClosingsHistory() {
             if (!selectedBarberId) return;
-            const historyCollectionRef = collection(db, ...getCollectionPath("barbers"), selectedBarberId, "weekly_closings");
+            const historyCollectionRef = collection(db, "barbers", selectedBarberId, "weekly_closings");
             const q = query(historyCollectionRef);
             unsubscribeHistory = onSnapshot(q, (snapshot) => {
                 historyTableBody.innerHTML = '';
@@ -625,4 +603,3 @@
     </script>
 </body>
 </html>
-```

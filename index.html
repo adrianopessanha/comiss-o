@@ -194,12 +194,17 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, query, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // *****************************************************************
-        // ATENÇÃO: COLE AQUI A CONFIGURAÇÃO DO SEU PROJETO FIREBASE!
-        // Você obtém isso no painel do seu projeto > Configurações do Projeto.
-        // O aplicativo NÃO FUNCIONARÁ sem a sua chave pessoal.
-        // *****************************************************************
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAOrTcxD_3nnFGytaaNN-xa087Hel00IRU",
+  authDomain: "comisao-dos-barbeiros.firebaseapp.com",
+  projectId: "comisao-dos-barbeiros",
+  storageBucket: "comisao-dos-barbeiros.firebasestorage.app",
+  messagingSenderId: "571199864529",
+  appId: "1:571199864529:web:0ea9584c0c5372192e4ff0",
+  measurementId: "G-VW7EZCR5G5"
+};
+       
         const firebaseConfig = {
             apiKey: "COLE_SUA_API_KEY_AQUI",
             authDomain: "COLE_SEU_AUTH_DOMAIN_AQUI",

@@ -175,11 +175,42 @@
             <div class="bg-gray-700/70 p-4 rounded-lg space-y-3 border border-gray-600">
                 <h4 class="font-semibold text-md text-cyan-300">Detalhes do Produto</h4>
                 <input type="text" id="productDescription" placeholder="Descrição do Produto (opcional)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
-                <input type="number" id="productsSold" placeholder="Qtd. Produtos Vendidos" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="number" id="productsSold" placeholder="Qtd. Produtos Vendidos" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                    <input type="number" id="productSaleValue" placeholder="Valor Total dos Produtos (R$)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                </div>
+                <select id="productPaymentMethod" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                    <option value="">Forma de Pagamento Produto</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Pix">Pix</option>
+                    <option value="Débito">Débito</option>
+                    <option value="Crédito">Crédito</option>
+                </select>
+            </div>
+
+            <!-- NEW: Plan/Gift Card Sale Details -->
+            <div class="bg-gray-700/70 p-4 rounded-lg space-y-3 border border-gray-600">
+                <h4 class="font-semibold text-md text-purple-300">Venda de Plano / Vale Presente</h4>
+                <input type="text" id="clientNamePlan" placeholder="Nome do Cliente (Obrigatório)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2" required>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="number" id="planSaleValue" placeholder="Valor do Plano/Vale (R$)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                    <select id="planSaleType" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                        <option value="">Tipo de Venda</option>
+                        <option value="Assinatura">Assinatura</option>
+                        <option value="Cartão Presente">Cartão Presente</option>
+                    </select>
+                </div>
+                <select id="planSalePaymentMethod" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                    <option value="">Forma de Pagamento Plano/Vale</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Pix">Pix</option>
+                    <option value="Débito">Débito</option>
+                    <option value="Crédito">Crédito</option>
+                </select>
             </div>
 
             <button id="addTransactionBtn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center gap-2">
-              <i class="fa-solid fa-plus"></i> Adicionar
+              <i class="fa-solid fa-plus"></i> Adicionar Lançamento
             </button>
           </div>
 
@@ -337,7 +368,38 @@
         <div class="bg-gray-700/70 p-4 rounded-lg space-y-3 border border-gray-600">
             <h4 class="font-semibold text-md text-cyan-300">Detalhes do Produto</h4>
             <input type="text" id="editProductDescription" placeholder="Descrição do Produto (opcional)" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
-            <input type="number" id="editProductsSold" placeholder="Qtd. Produtos Vendidos" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="number" id="editProductsSold" placeholder="Qtd. Produtos Vendidos" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                <input type="number" id="editProductSaleValue" placeholder="Valor Total dos Produtos (R$)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+            </div>
+            <select id="editProductPaymentMethod" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                <option value="">Forma de Pagamento Produto</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Pix">Pix</option>
+                <option value="Débito">Débito</option>
+                <option value="Crédito">Crédito</option>
+            </select>
+        </div>
+
+        <!-- NEW: Edit Plan/Gift Card Sale Details -->
+        <div class="bg-gray-700/70 p-4 rounded-lg space-y-3 border border-gray-600">
+            <h4 class="font-semibold text-md text-purple-300">Venda de Plano / Vale Presente</h4>
+            <input type="text" id="editClientNamePlan" placeholder="Nome do Cliente (Obrigatório)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2" required>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="number" id="editPlanSaleValue" placeholder="Valor do Plano/Vale (R$)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                <select id="editPlanSaleType" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                    <option value="">Tipo de Venda</option>
+                    <option value="Assinatura">Assinatura</option>
+                    <option value="Cartão Presente">Cartão Presente</option>
+                </select>
+            </div>
+            <select id="editPlanSalePaymentMethod" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                <option value="">Forma de Pagamento Plano/Vale</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Pix">Pix</option>
+                <option value="Débito">Débito</option>
+                <option value="Crédito">Crédito</option>
+            </select>
         </div>
 
       <button id="saveEditBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center gap-2">
@@ -441,26 +503,38 @@
     valeInput = document.getElementById('vale');
     dailyLog = document.getElementById('daily-log');
     dailyLogPlaceholder = document.getElementById('daily-log-placeholder');
-    // Updated transactionForm to include productDescription
+    // Updated transactionForm to include productDescription, productSaleValue, and productPaymentMethod, and new plan fields
     transactionForm = { 
         clientName: document.getElementById('clientName'), 
         serviceDescription: document.getElementById('serviceDescription'), 
         serviceValue: document.getElementById('serviceValue'), 
         paymentMethod: document.getElementById('paymentMethod'), 
-        productDescription: document.getElementById('productDescription'), // NEW
-        productsSold: document.getElementById('productsSold') 
+        productDescription: document.getElementById('productDescription'),
+        productsSold: document.getElementById('productsSold'),
+        productSaleValue: document.getElementById('productSaleValue'),
+        productPaymentMethod: document.getElementById('productPaymentMethod'),
+        clientNamePlan: document.getElementById('clientNamePlan'), // NEW: Renamed from planDescription
+        planSaleValue: document.getElementById('planSaleValue'),     
+        planSaleType: document.getElementById('planSaleType'),       
+        planSalePaymentMethod: document.getElementById('planSalePaymentMethod') 
     };
     editModal = document.getElementById('edit-modal');
     closeEditModalBtn = document.getElementById('close-edit-modal-btn');
     saveEditBtn = document.getElementById('saveEditBtn');
-    // Updated editTransactionForm to include editProductDescription
+    // Updated editTransactionForm to include editProductDescription, editProductSaleValue, editProductPaymentMethod, and new plan fields
     editTransactionForm = { 
         clientName: document.getElementById('editClientName'), 
         serviceDescription: document.getElementById('editServiceDescription'), 
         serviceValue: document.getElementById('editServiceValue'), 
         paymentMethod: document.getElementById('editPaymentMethod'), 
-        productDescription: document.getElementById('editProductDescription'), // NEW
-        productsSold: document.getElementById('editProductsSold') 
+        productDescription: document.getElementById('editProductDescription'),
+        productsSold: document.getElementById('editProductsSold'),
+        productSaleValue: document.getElementById('editProductSaleValue'),
+        productPaymentMethod: document.getElementById('editProductPaymentMethod'),
+        clientNamePlan: document.getElementById('editClientNamePlan'), // NEW: Renamed from editPlanDescription
+        planSaleValue: document.getElementById('editPlanSaleValue'),     
+        planSaleType: document.getElementById('editPlanSaleType'),       
+        planSalePaymentMethod: document.getElementById('editPlanSalePaymentMethod') 
     };
     closeWeekBtn = document.getElementById('closeWeekBtn');
     currentWeekSpan = document.getElementById('currentWeek');
@@ -627,6 +701,7 @@
     daySelector.querySelectorAll('.day-btn').forEach(btn => {
       btn.classList.toggle('active', parseInt(btn.dataset.dayIndex) === selectedDay);
     });
+    calculateWeeklySummary(); // Recalculate daily details when day changes
     renderDailyLog();
   }
 
@@ -655,14 +730,34 @@
         if (t.productDescription && t.products > 0) {
             // If there's also a service, put product on a new line for clarity
             if (t.serviceDescription && t.value > 0) {
-                descriptionHtml += `<p class="text-sm text-gray-400 mt-1">Produto: ${t.productDescription} <span class="text-cyan-400">(${t.products} unid.)</span></p>`;
+                descriptionHtml += `<p class="text-sm text-gray-400 mt-1">Produto: ${t.productDescription} <span class="text-cyan-400">(${t.products} unid.)</span>`;
+                if (t.productSaleValue > 0) descriptionHtml += ` <span class="text-cyan-400">${formatCurrency(t.productSaleValue)}</span>`;
+                if (t.productPaymentMethod) descriptionHtml += ` <span class="text-gray-400">(${t.productPaymentMethod})</span>`;
+                descriptionHtml += `</p>`;
             } else {
                 // If only product, make it the primary line
-                descriptionHtml += `<p class="font-semibold">Produto: ${t.productDescription} <span class="text-cyan-400">(${t.products} unid.)</span></p>`;
+                descriptionHtml += `<p class="font-semibold">Produto: ${t.productDescription} <span class="text-cyan-400">(${t.products} unid.)</span>`;
+                if (t.productSaleValue > 0) descriptionHtml += ` <span class="text-cyan-400">${formatCurrency(t.productSaleValue)}</span>`;
+                if (t.productPaymentMethod) descriptionHtml += ` <span class="text-gray-400">(${t.productPaymentMethod})</span>`;
+                descriptionHtml += `</p>`;
             }
         }
-        // Display client name if available
-        if (t.clientName) {
+        // Display plan/gift card sale details if available
+        if (t.planSaleType && t.planSaleValue > 0) {
+            let planSaleText = `Venda de ${t.planSaleType}`;
+            if (t.clientNamePlan) planSaleText += ` para ${t.clientNamePlan}`; // Use clientNamePlan here
+            
+            // If there's also a service or product, put plan sale on a new line
+            if ((t.serviceDescription && t.value > 0) || (t.productDescription && t.products > 0)) {
+                descriptionHtml += `<p class="text-sm text-purple-400 mt-1">${planSaleText} <span class="text-cyan-400">${formatCurrency(t.planSaleValue)}</span> <span class="text-gray-400">(${t.planSalePaymentMethod})</span></p>`;
+            } else {
+                // If only plan sale, make it the primary line
+                descriptionHtml += `<p class="font-semibold text-purple-400">${planSaleText} <span class="text-cyan-400">${formatCurrency(t.planSaleValue)}</span> <span class="text-gray-400">(${t.planSalePaymentMethod})</span></p>`;
+            }
+        }
+
+        // Display client name if available (applies to all transaction types, but only if not already displayed as part of plan sale)
+        if (t.clientName && !t.clientNamePlan) { // Only show general clientName if not a plan sale or if plan sale doesn't have clientNamePlan
             descriptionHtml += `<p class="text-xs text-gray-500">Cliente: ${t.clientName}</p>`;
         }
         
@@ -701,35 +796,91 @@
   }
 
   async function addTransaction() {
+    const serviceDescription = transactionForm.serviceDescription.value.trim();
     const serviceValue = parseFloat(transactionForm.serviceValue.value) || 0;
+    const paymentMethod = transactionForm.paymentMethod.value;
+
+    const productDescription = transactionForm.productDescription.value.trim();
     const productsSold = parseInt(transactionForm.productsSold.value) || 0;
+    const productSaleValue = parseFloat(transactionForm.productSaleValue.value) || 0;
+    const productPaymentMethod = transactionForm.productPaymentMethod.value;
 
-    // Validation: At least one of service or product must have a value/quantity
-    if ((!transactionForm.serviceDescription.value && serviceValue <= 0) && (!transactionForm.productDescription.value && productsSold <= 0)) {
-        alert("Por favor, preencha a descrição e um valor válido para o serviço, OU a descrição e quantidade para o produto.");
+    const clientNamePlan = transactionForm.clientNamePlan.value.trim(); // NEW
+    const planSaleValue = parseFloat(transactionForm.planSaleValue.value) || 0;
+    const planSaleType = transactionForm.planSaleType.value;
+    const planSalePaymentMethod = transactionForm.planSalePaymentMethod.value;
+
+    const clientName = transactionForm.clientName.value.trim(); // General client name for services/products
+
+    // Determine transaction type and validate
+    let newTransaction = null;
+
+    const isServiceEntry = serviceDescription && serviceValue > 0;
+    const isProductEntry = productDescription && productsSold > 0 && productSaleValue > 0 && productPaymentMethod;
+    const isPlanSaleEntry = clientNamePlan && planSaleValue > 0 && planSaleType && planSalePaymentMethod; // clientNamePlan is now required
+
+    // Validation: Only one type of entry at a time
+    if ((isServiceEntry || isProductEntry) && isPlanSaleEntry) {
+        alert("Não é possível registrar serviço/produto e venda de plano/vale na mesma transação. Por favor, registre separadamente.");
         return;
     }
-    // If service value is entered, description is required
-    if (serviceValue > 0 && !transactionForm.serviceDescription.value.trim()) {
-        alert("Por favor, preencha a descrição do serviço.");
+
+    if (isServiceEntry || isProductEntry) {
+        if (isServiceEntry && !paymentMethod) {
+            alert("Por favor, selecione a forma de pagamento para o serviço.");
+            return;
+        }
+        if (isProductEntry && (!productPaymentMethod || productSaleValue <= 0)) {
+             alert("Por favor, preencha o valor total e a forma de pagamento para os produtos.");
+             return;
+        }
+        // If no service or product details, but clientName is filled, prompt for service/product details
+        if (!isServiceEntry && !isProductEntry && clientName) {
+            alert("Por favor, preencha os detalhes do serviço ou produto para o cliente.");
+            return;
+        }
+
+        newTransaction = {
+            id: crypto.randomUUID(),
+            clientName: clientName,
+            serviceDescription: serviceDescription,
+            value: serviceValue,
+            paymentMethod: paymentMethod,
+            productDescription: productDescription,
+            products: productsSold,
+            productSaleValue: productSaleValue,
+            productPaymentMethod: productPaymentMethod
+        };
+    } else if (isPlanSaleEntry) {
+        if (!clientNamePlan) { // This is now explicitly required for plan sales
+            alert("Por favor, preencha o nome do cliente para a venda do plano/vale.");
+            return;
+        }
+        if (planSaleValue <= 0) {
+            alert("Por favor, preencha um valor total válido para a venda do plano/vale.");
+            return;
+        }
+        if (!planSaleType) {
+            alert("Por favor, selecione o tipo de venda (Assinatura/Cartão Presente).");
+            return;
+        }
+        if (!planSalePaymentMethod) {
+            alert("Por favor, selecione a forma de pagamento para a venda do plano/vale.");
+            return;
+        }
+
+        newTransaction = {
+            id: crypto.randomUUID(),
+            clientNamePlan: clientNamePlan, // Store client name specifically for plan sales
+            planDescription: planDescription, // Still keep description as optional
+            planSaleValue: planSaleValue,
+            planSaleType: planSaleType,
+            planSalePaymentMethod: planSalePaymentMethod
+        };
+    } else {
+        alert("Por favor, preencha os detalhes para um serviço, produto OU uma venda de plano/vale.");
         return;
     }
-    // If products sold is entered, description is required
-    if (productsSold > 0 && !transactionForm.productDescription.value.trim()) {
-        alert("Por favor, preencha a descrição do produto.");
-        return;
-    }
-
-
-    const newTransaction = {
-      id: crypto.randomUUID(),
-      clientName: transactionForm.clientName.value.trim(),
-      serviceDescription: transactionForm.serviceDescription.value.trim(),
-      value: serviceValue, // Value for the service
-      paymentMethod: transactionForm.paymentMethod.value,
-      productDescription: transactionForm.productDescription.value.trim(), // NEW
-      products: productsSold // Quantity of products
-    };
 
     const dayKey = weekDays[selectedDay];
     const updatedData = JSON.parse(JSON.stringify(weeklyData));
@@ -746,8 +897,15 @@
     transactionForm.serviceDescription.value = '';
     transactionForm.serviceValue.value = '';
     transactionForm.paymentMethod.value = 'Dinheiro';
-    transactionForm.productDescription.value = ''; // NEW
+    transactionForm.productDescription.value = '';
     transactionForm.productsSold.value = '';
+    transactionForm.productSaleValue.value = '';
+    transactionForm.productPaymentMethod.value = '';
+    transactionForm.clientNamePlan.value = ''; // Clear new client name field
+    transactionForm.planDescription.value = ''; // Clear plan description
+    transactionForm.planSaleValue.value = '';
+    transactionForm.planSaleType.value = '';
+    transactionForm.planSalePaymentMethod.value = '';
   }
 
   async function deleteTransaction(transactionId, transactionDayIndex) {
@@ -776,12 +934,23 @@
     if (!transaction) return;
 
     currentEditingTransactionId = transactionId;
+    
+    // Populate service/product fields
     editTransactionForm.clientName.value = transaction.clientName || '';
     editTransactionForm.serviceDescription.value = transaction.serviceDescription || '';
     editTransactionForm.serviceValue.value = transaction.value || '';
     editTransactionForm.paymentMethod.value = transaction.paymentMethod || 'Dinheiro';
-    editTransactionForm.productDescription.value = transaction.productDescription || ''; // NEW
+    editTransactionForm.productDescription.value = transaction.productDescription || '';
     editTransactionForm.productsSold.value = transaction.products || '';
+    editTransactionForm.productSaleValue.value = transaction.productSaleValue || '';
+    editTransactionForm.productPaymentMethod.value = transaction.productPaymentMethod || '';
+
+    // Populate plan sale fields
+    editTransactionForm.clientNamePlan.value = transaction.clientNamePlan || ''; // NEW
+    editTransactionForm.planDescription.value = transaction.planDescription || '';
+    editTransactionForm.planSaleValue.value = transaction.planSaleValue || '';
+    editTransactionForm.planSaleType.value = transaction.planSaleType || '';
+    editTransactionForm.planSalePaymentMethod.value = transaction.planSalePaymentMethod || '';
 
     editModal.classList.remove('hidden');
     editModal.classList.add('flex');
@@ -790,22 +959,88 @@
   async function saveEditedTransaction() {
     if (!currentEditingTransactionId) return;
 
+    const serviceDescription = editTransactionForm.serviceDescription.value.trim();
     const serviceValue = parseFloat(editTransactionForm.serviceValue.value) || 0;
-    const productsSold = parseInt(editTransactionForm.productsSold.value) || 0;
+    const paymentMethod = editTransactionForm.paymentMethod.value;
 
-    // Validation: At least one of service or product must have a value/quantity
-    if ((!editTransactionForm.serviceDescription.value && serviceValue <= 0) && (!editTransactionForm.productDescription.value && productsSold <= 0)) {
-        alert("Por favor, preencha a descrição e um valor válido para o serviço, OU a descrição e quantidade para o produto.");
+    const productDescription = editTransactionForm.productDescription.value.trim();
+    const productsSold = parseInt(editTransactionForm.productsSold.value) || 0;
+    const productSaleValue = parseFloat(editTransactionForm.productSaleValue.value) || 0;
+    const productPaymentMethod = editTransactionForm.productPaymentMethod.value;
+
+    const clientNamePlan = editTransactionForm.clientNamePlan.value.trim(); // NEW
+    const planSaleValue = parseFloat(editTransactionForm.planSaleValue.value) || 0;
+    const planSaleType = editTransactionForm.planSaleType.value;
+    const planSalePaymentMethod = editTransactionForm.planSalePaymentMethod.value;
+
+    const clientName = editTransactionForm.clientName.value.trim(); // General client name for services/products
+
+    let updatedTransaction = null;
+
+    const isServiceEntry = serviceDescription && serviceValue > 0;
+    const isProductEntry = productDescription && productsSold > 0 && productSaleValue > 0 && productPaymentMethod;
+    const isPlanSaleEntry = clientNamePlan && planSaleValue > 0 && planSaleType && planSalePaymentMethod; // clientNamePlan is now required
+
+
+    // Validation similar to addTransaction
+    if ((isServiceEntry || isProductEntry) && isPlanSaleEntry) {
+        alert("Não é possível registrar serviço/produto e venda de plano/vale na mesma transação. Por favor, registre separadamente.");
         return;
     }
-    // If service value is entered, description is required
-    if (serviceValue > 0 && !editTransactionForm.serviceDescription.value.trim()) {
-        alert("Por favor, preencha a descrição do serviço.");
-        return;
-    }
-    // If products sold is entered, description is required
-    if (productsSold > 0 && !editTransactionForm.productDescription.value.trim()) {
-        alert("Por favor, preencha a descrição do produto.");
+
+    if (isServiceEntry || isProductEntry) {
+        if (isServiceEntry && !paymentMethod) {
+            alert("Por favor, selecione a forma de pagamento para o serviço.");
+            return;
+        }
+        if (isProductEntry && (!productPaymentMethod || productSaleValue <= 0)) {
+             alert("Por favor, preencha o valor total e a forma de pagamento para os produtos.");
+             return;
+        }
+        if (!isServiceEntry && !isProductEntry && clientName) {
+            alert("Por favor, preencha os detalhes do serviço ou produto para o cliente.");
+            return;
+        }
+
+        updatedTransaction = {
+            id: currentEditingTransactionId, // Keep original ID
+            clientName: clientName,
+            serviceDescription: serviceDescription,
+            value: serviceValue,
+            paymentMethod: paymentMethod,
+            productDescription: productDescription,
+            products: productsSold,
+            productSaleValue: productSaleValue,
+            productPaymentMethod: productPaymentMethod
+        };
+    } else if (isPlanSaleEntry) {
+        if (!clientNamePlan) { // This is now explicitly required for plan sales
+            alert("Por favor, preencha o nome do cliente para a venda do plano/vale.");
+            return;
+        }
+        if (planSaleValue <= 0) {
+            alert("Por favor, preencha um valor total válido para a venda do plano/vale.");
+            return;
+        }
+        if (!planSaleType) {
+            alert("Por favor, selecione o tipo de venda (Assinatura/Cartão Presente).");
+            return;
+        }
+        if (!planSalePaymentMethod) {
+            alert("Por favor, selecione a forma de pagamento para a venda do plano/vale.");
+            return;
+        }
+
+        updatedTransaction = {
+            id: currentEditingTransactionId, // Keep original ID
+            clientNamePlan: clientNamePlan, // Store client name specifically for plan sales
+            planDescription: planDescription, // Still keep description as optional
+            planSaleValue: planSaleValue,
+            planSaleType: planSaleType,
+            planSalePaymentMethod: planSalePaymentMethod
+        };
+    } else {
+        alert("Por favor, preencha os detalhes para um serviço, produto OU uma venda de plano/vale.");
         return;
     }
 
@@ -815,15 +1050,6 @@
     const transactionIndex = updatedData[dayKey]?.transactions.findIndex(t => t.id === currentEditingTransactionId);
 
     if (transactionIndex > -1) {
-      const updatedTransaction = {
-        ...updatedData[dayKey].transactions[transactionIndex],
-        clientName: editTransactionForm.clientName.value.trim(),
-        serviceDescription: editTransactionForm.serviceDescription.value.trim(),
-        value: serviceValue,
-        paymentMethod: editTransactionForm.paymentMethod.value,
-        productDescription: editTransactionForm.productDescription.value.trim(), // NEW
-        products: productsSold
-      };
       updatedData[dayKey].transactions[transactionIndex] = updatedTransaction;
       await updateFirestoreData(updatedData);
     }
@@ -864,21 +1090,22 @@
 
   function calculateWeeklySummary() {
     // --- Weekly Summary for "Resumo da Semana" (entire week) ---
-    let totalBrutoSemana = 0; // Only real payments
-    let comissaoServicosSemana = 0; // Only real payments, with deductions
+    let totalBrutoSemana = 0; // All payments (services + products + subscriptions + gift cards)
+    let comissaoServicosSemana = 0; // Services only, with deductions
     let comissaoAssinaturasSemana = 0;
     let comissaoCartaoPresenteSemana = 0;
     let totalValeSemana = 0;
-    let totalProdutosSemana = 0;
+    let totalProdutosVendidosSemana = 0; // Total quantity of products sold for commission
 
     // --- Daily Details for "Detalhes do Faturamento Diário" (selected day only) ---
-    let detalheAssinaturasDia = 0;
-    let detalheCartaoPresenteDia = 0;
+    // These will now sum all payment methods regardless of source (service, product, plan sale)
+    let detalheAssinaturasDia = 0; // This will now represent total value of "Assinatura" plan sales for the day
+    let detalheCartaoPresenteDia = 0; // This will now represent total value of "Cartão Presente" plan sales for the day
     let detalheDinheiroDia = 0;
     let detalhePixDia = 0;
     let detalheDebitoDia = 0;
     let detalheCreditoDia = 0;
-    let detalheTotalProdutosDia = 0;
+    let detalheTotalProdutosDia = 0; // Total quantity of products for the day
 
     // Get transactions for the currently selected day
     const dayDataForSelectedDay = weeklyData[weekDays[selectedDay]] || { transactions: [], vale: 0 };
@@ -886,26 +1113,44 @@
 
     // Calculate details for the selected day
     transactionsForSelectedDay.forEach(t => {
+        // Products quantity for daily details
         detalheTotalProdutosDia += t.products || 0;
-        switch (t.paymentMethod) {
-            case 'Assinatura':
-                detalheAssinaturasDia += t.value;
-                break;
-            case 'Cartão Presente':
-                detalheCartaoPresenteDia += t.value;
-                break;
-            case 'Dinheiro':
-                detalheDinheiroDia += t.value;
-                break;
-            case 'Pix':
-                detalhePixDia += t.value;
-                break;
-            case 'Débito':
-                detalheDebitoDia += t.value;
-                break;
-            case 'Crédito':
-                detalheCreditoDia += t.value;
-                break;
+
+        // Accumulate for daily details by payment method (services AND products AND plan sales)
+        // Services
+        if (t.serviceDescription && t.value > 0) {
+            switch (t.paymentMethod) {
+                // case 'Assinatura': detalheAssinaturasDia += t.value; break; // Removed from here
+                // case 'Cartão Presente': detalheCartaoPresenteDia += t.value; break; // Removed from here
+                case 'Dinheiro': detalheDinheiroDia += t.value; break;
+                case 'Pix': detalhePixDia += t.value; break;
+                case 'Débito': detalheDebitoDia += t.value; break;
+                case 'Crédito': detalheCreditoDia += t.value; break;
+            }
+        }
+        // Products
+        if (t.productDescription && t.products > 0 && t.productSaleValue > 0) {
+            switch (t.productPaymentMethod) {
+                case 'Dinheiro': detalheDinheiroDia += t.productSaleValue; break;
+                case 'Pix': detalhePixDia += t.productSaleValue; break;
+                case 'Débito': detalheDebitoDia += t.productSaleValue; break;
+                case 'Crédito': detalheCreditoDia += t.productSaleValue; break;
+            }
+        }
+        // Plan Sales
+        if (t.planSaleType && t.planSaleValue > 0) {
+            switch (t.planSalePaymentMethod) {
+                case 'Dinheiro': detalheDinheiroDia += t.planSaleValue; break;
+                case 'Pix': detalhePixDia += t.planSaleValue; break;
+                case 'Débito': detalheDebitoDia += t.planSaleValue; break;
+                case 'Crédito': detalheCreditoDia += t.planSaleValue; break;
+            }
+            // Add to specific Assinaturas/Cartão Presente totals if they are plan sales
+            if (t.planSaleType === 'Assinatura') {
+                detalheAssinaturasDia += t.planSaleValue;
+            } else if (t.planSaleType === 'Cartão Presente') {
+                detalheCartaoPresenteDia += t.planSaleValue;
+            }
         }
     });
 
@@ -914,25 +1159,38 @@
     Object.values(weeklyData).forEach(dayData => {
       const transactions = dayData.transactions || [];
       transactions.forEach(t => {
-        totalProdutosSemana += t.products || 0; // Products always count for commission
+        // Services
+        if (t.serviceDescription && t.value > 0) {
+            totalProdutosVendidosSemana += t.products || 0; // Products associated with services count for commission
+            totalBrutoSemana += t.value; // Add service value to total bruto
+            if (t.paymentMethod === 'Assinatura') {
+                comissaoAssinaturasSemana += t.value * 0.50;
+            } else if (t.paymentMethod === 'Cartão Presente') {
+                comissaoCartaoPresenteSemana += t.value * 0.50;
+            } else { // Real payments for services
+                let commissionableValue = t.value;
+                if (t.paymentMethod === 'Débito') commissionableValue *= (1 - 0.015);
+                else if (t.paymentMethod === 'Crédito') commissionableValue *= (1 - 0.05);
+                comissaoServicosSemana += commissionableValue * 0.50;
+            }
+        }
 
-        // Calculate commissions based on payment method for weekly summary
-        if (t.paymentMethod === 'Assinatura') {
-          comissaoAssinaturasSemana += t.value * 0.50; // 50% commission for subscriptions
-        } else if (t.paymentMethod === 'Cartão Presente') {
-          comissaoCartaoPresenteSemana += t.value * 0.50; // 50% commission for gift cards
-        } else { // Real payments: Dinheiro, Pix, Débito, Crédito
-          totalBrutoSemana += t.value; // Only real payments count for total bruto
-          let commissionableValue = t.value;
-          if (t.paymentMethod === 'Débito') commissionableValue *= (1 - 0.015);
-          else if (t.paymentMethod === 'Crédito') commissionableValue *= (1 - 0.05);
-          comissaoServicosSemana += commissionableValue * 0.50; // 50% commission on services (after deductions)
+        // Products
+        if (t.productDescription && t.products > 0 && t.productSaleValue > 0 && t.productPaymentMethod) {
+            totalProdutosVendidosSemana += t.products; // Products from product sales also count for commission
+            totalBrutoSemana += t.productSaleValue; // Add product sale value to total bruto
+        }
+
+        // Plan Sales (these do NOT generate commission for the barber)
+        if (t.planSaleType && t.planSaleValue > 0 && t.planSalePaymentMethod) {
+            totalBrutoSemana += t.planSaleValue; // Add plan sale value to total bruto
+            // No commission added for plan sales here
         }
       });
       totalValeSemana += dayData.vale || 0;
     });
 
-    const comissaoProdutosSemana = totalProdutosSemana * 5; // R$5.00 per product
+    const comissaoProdutosSemana = totalProdutosVendidosSemana * 5; // R$5.00 per product quantity
     const subtotalComissaoSemana = comissaoServicosSemana + comissaoAssinaturasSemana + comissaoCartaoPresenteSemana + comissaoProdutosSemana;
     const comissaoFinalSemana = subtotalComissaoSemana - totalValeSemana;
 
@@ -990,33 +1248,33 @@
 
   function calculateAdminReport(allEntriesData) {
     const totals = {
-      faturamentoTotalCurrentWeek: 0, // Overall weekly real faturamento
-      dinheiro: 0,
+      faturamentoTotalCurrentWeek: 0, // Overall weekly real faturamento (services + products + plan sales)
+      dinheiro: 0, // Overall weekly real faturamento by payment method (services + products + plan sales)
       pix: 0,
       debito: 0,
       credito: 0,
-      qtdAssinaturas: 0,
-      valorAssinaturas: 0,
-      qtdCartaoPresente: 0,
-      valorCartaoPresente: 0,
-      comissaoAssinaturasCartao: 0,
-      faturamentoDiarioDinheiro: 0,
+      qtdAssinaturas: 0, // Quantity of services paid by subscription
+      valorAssinaturas: 0, // Value of services paid by subscription
+      qtdCartaoPresente: 0, // Quantity of services paid by gift card
+      valorCartaoPresente: 0, // Value of services paid by gift card
+      comissaoAssinaturasCartao: 0, // Commission from services paid by subscription/gift card
+      faturamentoDiarioDinheiro: 0, // Overall daily real faturamento by payment method (services + products + plan sales)
       faturamentoDiarioPix: 0,
       faturamentoDiarioDebito: 0,
       faturamentoDiarioCredito: 0,
-      loja01DailyDinheiro: 0,
+      loja01DailyDinheiro: 0, // Loja 01 daily real faturamento by payment method (services + products + plan sales)
       loja01DailyPix: 0,
       loja01DailyDebito: 0,
       loja01DailyCredito: 0,
-      loja01WeeklyTotal: 0, // Loja 01 weekly real faturamento
-      loja02DailyDinheiro: 0,
+      loja01WeeklyTotal: 0, // Loja 01 weekly real faturamento (services + products + plan sales)
+      loja02DailyDinheiro: 0, // Loja 02 daily real faturamento by payment method (services + products + plan sales)
       loja02DailyPix: 0,
       loja02DailyDebito: 0,
       loja02DailyCredito: 0,
-      loja02WeeklyTotal: 0, // Loja 02 weekly real faturamento
+      loja02WeeklyTotal: 0, // Loja 02 weekly real faturamento (services + products + plan sales)
     };
 
-    const barberWeeklyRevenue = {}; // To store weekly real revenue per barber for ranking
+    const barberWeeklyRevenue = {}; // To store weekly real revenue per barber for ranking (services + products ONLY)
 
     const today = new Date();
     const currentDayOfWeek = today.getDay();
@@ -1046,7 +1304,7 @@
                 const transactions = dayData.transactions || [];
 
                 for (const t of transactions) {
-                    // Always accumulate for Assinaturas/Cartão Presente specific totals (these are not 'real' faturamento)
+                    // Accumulate for Assinaturas/Cartão Presente specific totals (from services)
                     if (t.paymentMethod === 'Assinatura') {
                         totals.qtdAssinaturas++;
                         totals.valorAssinaturas += t.value;
@@ -1057,51 +1315,122 @@
                         totals.comissaoAssinaturasCartao += t.value * 0.50;
                     }
 
-                    // Only include 'real' payments in Faturamento Bruto (overall and per barber)
-                    if (t.paymentMethod !== 'Assinatura' && t.paymentMethod !== 'Cartão Presente') {
-                        totals.faturamentoTotalCurrentWeek += t.value; // Overall weekly real faturamento
-                        barberWeeklyRevenue[barberId] += t.value; // Barber weekly real faturamento for ranking
+                    // Process service value (if it's a real payment method)
+                    if (t.serviceDescription && t.value > 0) { // Check if it's a service transaction
+                        totals.faturamentoTotalCurrentWeek += t.value; // Overall weekly faturamento (service value)
+                        if (t.paymentMethod !== 'Assinatura' && t.paymentMethod !== 'Cartão Presente') {
+                            barberWeeklyRevenue[barberId] += t.value; // Only real service payments for barber ranking
 
-                        // Daily totals for today (across all barbers) - ONLY REAL PAYMENTS
-                        if (weekDays[currentDayOfWeek] === dayKey) {
-                            switch (t.paymentMethod) {
-                                case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.value; break;
-                                case 'Pix': totals.faturamentoDiarioPix += t.value; break;
-                                case 'Débito': totals.faturamentoDiarioDebito += t.value; break;
-                                case 'Crédito': totals.faturamentoDiarioCredito += t.value; break;
-                            }
-
-                            // Daily totals by store for today - ONLY REAL PAYMENTS
-                            if (barberStore === 'loja01') {
+                            if (weekDays[currentDayOfWeek] === dayKey) {
                                 switch (t.paymentMethod) {
-                                    case 'Dinheiro': totals.loja01DailyDinheiro += t.value; break;
-                                    case 'Pix': totals.loja01DailyPix += t.value; break;
-                                    case 'Débito': totals.loja01DailyDebito += t.value; break;
-                                    case 'Crédito': totals.loja01DailyCredito += t.value; break;
+                                    case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.value; break;
+                                    case 'Pix': totals.faturamentoDiarioPix += t.value; break;
+                                    case 'Débito': totals.faturamentoDiarioDebito += t.value; break;
+                                    case 'Crédito': totals.faturamentoDiarioCredito += t.value; break;
+                                }
+                                if (barberStore === 'loja01') {
+                                    switch (t.paymentMethod) {
+                                        case 'Dinheiro': totals.loja01DailyDinheiro += t.value; break;
+                                        case 'Pix': totals.loja01DailyPix += t.value; break;
+                                        case 'Débito': totals.loja01DailyDebito += t.value; break;
+                                        case 'Crédito': totals.loja01DailyCredito += t.value; break;
+                                    }
+                                } else if (barberStore === 'loja02') {
+                                    switch (t.paymentMethod) {
+                                        case 'Dinheiro': totals.loja02DailyDinheiro += t.value; break;
+                                        case 'Pix': totals.loja02DailyPix += t.value; break;
+                                        case 'Débito': totals.loja02DailyDebito += t.value; break;
+                                        case 'Crédito': totals.loja02DailyCredito += t.value; break;
+                                    }
+                                }
+                            }
+                            if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.value;
+                            else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.value;
+
+                            switch (t.paymentMethod) {
+                                case 'Dinheiro': totals.dinheiro += t.value; break;
+                                case 'Pix': totals.pix += t.value; break;
+                                case 'Débito': totals.debito += t.value; break;
+                                case 'Crédito': totals.credito += t.value; break;
+                            }
+                        }
+                    }
+
+                    // Process product sale value
+                    if (t.productDescription && t.products > 0 && t.productSaleValue > 0 && t.productPaymentMethod) { // Check if it's a product transaction
+                        totals.faturamentoTotalCurrentWeek += t.productSaleValue; // Overall weekly faturamento (product value)
+                        barberWeeklyRevenue[barberId] += t.productSaleValue; // Product sales count for barber ranking
+
+                        if (weekDays[currentDayOfWeek] === dayKey) {
+                            switch (t.productPaymentMethod) {
+                                case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.productSaleValue; break;
+                                case 'Pix': totals.faturamentoDiarioPix += t.productSaleValue; break;
+                                case 'Débito': totals.faturamentoDiarioDebito += t.productSaleValue; break;
+                                case 'Crédito': totals.faturamentoDiarioCredito += t.productSaleValue; break;
+                            }
+                            if (barberStore === 'loja01') {
+                                switch (t.productPaymentMethod) {
+                                    case 'Dinheiro': totals.loja01DailyDinheiro += t.productSaleValue; break;
+                                    case 'Pix': totals.loja01DailyPix += t.productSaleValue; break;
+                                    case 'Débito': totals.loja01DailyDebito += t.productSaleValue; break;
+                                    case 'Crédito': totals.loja01DailyCredito += t.productSaleValue; break;
                                 }
                             } else if (barberStore === 'loja02') {
-                                switch (t.paymentMethod) {
-                                    case 'Dinheiro': totals.loja02DailyDinheiro += t.value; break;
-                                    case 'Pix': totals.loja02DailyPix += t.value; break;
-                                    case 'Débito': totals.loja02DailyDebito += t.value; break;
-                                    case 'Crédito': totals.loja02DailyCredito += t.value; break;
+                                switch (t.productPaymentMethod) {
+                                    case 'Dinheiro': totals.loja02DailyDinheiro += t.productSaleValue; break;
+                                    case 'Pix': totals.loja02DailyPix += t.productSaleValue; break;
+                                    case 'Débito': totals.loja02DailyDebito += t.productSaleValue; break;
+                                    case 'Crédito': totals.loja02DailyCredito += t.productSaleValue; break;
                                 }
                             }
                         }
+                        if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.productSaleValue;
+                        else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.productSaleValue;
 
-                        // Weekly totals by store - ONLY REAL PAYMENTS
-                        if (barberStore === 'loja01') {
-                            totals.loja01WeeklyTotal += t.value;
-                        } else if (barberStore === 'loja02') {
-                            totals.loja02WeeklyTotal += t.value;
+                        switch (t.productPaymentMethod) {
+                            case 'Dinheiro': totals.dinheiro += t.productSaleValue; break;
+                            case 'Pix': totals.pix += t.productSaleValue; break;
+                            case 'Débito': totals.debito += t.productSaleValue; break;
+                            case 'Crédito': totals.credito += t.productSaleValue; break;
                         }
+                    }
 
-                        // Accumulate for other weekly breakdowns (Dinheiro, Pix, etc. for overall) - ONLY REAL PAYMENTS
-                        switch (t.paymentMethod) {
-                            case 'Dinheiro': totals.dinheiro += t.value; break;
-                            case 'Pix': totals.pix += t.value; break;
-                            case 'Débito': totals.debito += t.value; break;
-                            case 'Crédito': totals.credito += t.value; break;
+                    // Process plan sale value (does NOT count for barber's commission/ranking)
+                    if (t.planSaleType && t.planSaleValue > 0 && t.planSalePaymentMethod) { // Check if it's a plan sale transaction
+                        totals.faturamentoTotalCurrentWeek += t.planSaleValue; // Overall weekly faturamento (plan sale value)
+                        // Do NOT add to barberWeeklyRevenue
+
+                        if (weekDays[currentDayOfWeek] === dayKey) {
+                            switch (t.planSalePaymentMethod) {
+                                case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.planSaleValue; break;
+                                case 'Pix': totals.faturamentoDiarioPix += t.planSaleValue; break;
+                                case 'Débito': totals.faturamentoDiarioDebito += t.planSaleValue; break;
+                                case 'Crédito': totals.faturamentoDiarioCredito += t.planSaleValue; break;
+                            }
+                            if (barberStore === 'loja01') {
+                                switch (t.planSalePaymentMethod) {
+                                    case 'Dinheiro': totals.loja01DailyDinheiro += t.planSaleValue; break;
+                                    case 'Pix': totals.loja01DailyPix += t.planSaleValue; break;
+                                    case 'Débito': totals.loja01DailyDebito += t.planSaleValue; break;
+                                    case 'Crédito': totals.loja01DailyCredito += t.planSaleValue; break;
+                                }
+                            } else if (barberStore === 'loja02') {
+                                switch (t.planSalePaymentMethod) {
+                                    case 'Dinheiro': totals.loja02DailyDinheiro += t.planSaleValue; break;
+                                    case 'Pix': totals.loja02DailyPix += t.planSaleValue; break;
+                                    case 'Débito': totals.loja02DailyDebito += t.planSaleValue; break;
+                                    case 'Crédito': totals.loja02DailyCredito += t.planSaleValue; break;
+                                }
+                            }
+                        }
+                        if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.planSaleValue;
+                        else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.planSaleValue;
+
+                        switch (t.planSalePaymentMethod) {
+                            case 'Dinheiro': totals.dinheiro += t.planSaleValue; break;
+                            case 'Pix': totals.pix += t.planSaleValue; break;
+                            case 'Débito': totals.debito += t.planSaleValue; break;
+                            case 'Crédito': totals.credito += t.planSaleValue; break;
                         }
                     }
                 }
@@ -1180,19 +1509,32 @@
     Object.values(weeklyData).forEach(dayData => {
       const transactions = dayData.transactions || [];
       transactions.forEach(t => {
-        totalProdutos += t.products || 0; // Products always count for commission
+        // Products quantity for commission (from both service-associated products and standalone product sales)
+        totalProdutos += t.products || 0;
 
-        // Calculate commissions based on payment method
-        if (t.paymentMethod === 'Assinatura') {
-          comissaoAssinaturasVal += t.value * 0.50; // 50% commission for subscriptions
-        } else if (t.paymentMethod === 'Cartão Presente') {
-          comissaoCartaoPresenteVal += t.value * 0.50; // 50% commission for gift cards
-        } else { // Real payments: Dinheiro, Pix, Débito, Crédito
-          totalBruto += t.value; // Only real payments count for total bruto
-          let commissionableValue = t.value;
-          if (t.paymentMethod === 'Débito') commissionableValue *= (1 - 0.015);
-          else if (t.paymentMethod === 'Crédito') commissionableValue *= (1 - 0.05);
-          comissaoServicos += commissionableValue * 0.50; // 50% commission on services (after deductions)
+        // Calculate commissions and total bruto for services
+        if (t.serviceDescription && t.value > 0) {
+          totalBruto += t.value; // Add service value to total bruto
+          if (t.paymentMethod === 'Assinatura') {
+            comissaoAssinaturasVal += t.value * 0.50; // 50% commission for subscriptions
+          } else if (t.paymentMethod === 'Cartão Presente') {
+            comissaoCartaoPresenteVal += t.value * 0.50; // 50% commission for gift cards
+          } else { // Real payments for services
+            let commissionableValue = t.value;
+            if (t.paymentMethod === 'Débito') commissionableValue *= (1 - 0.015);
+            else if (t.paymentMethod === 'Crédito') commissionableValue *= (1 - 0.05);
+            comissaoServicos += commissionableValue * 0.50; // 50% commission on services (after deductions)
+          }
+        }
+
+        // Add product sale value to total bruto (from standalone product sales)
+        if (t.productDescription && t.products > 0 && t.productSaleValue > 0 && t.productPaymentMethod) {
+            totalBruto += t.productSaleValue;
+        }
+
+        // Add plan sale value to total bruto (from standalone plan sales)
+        if (t.planSaleType && t.planSaleValue > 0 && t.planSalePaymentMethod) {
+            totalBruto += t.planSaleValue;
         }
       });
       totalVale += dayData.vale || 0;

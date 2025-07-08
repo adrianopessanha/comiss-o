@@ -49,10 +49,10 @@
     </header>
 
     <div id="admin-report-section" class="hidden bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 mb-8">
-      <h2 class="text-2xl font-semibold mb-4 text-center text-cyan-400">📊 Relatório Geral da Semana (Todos Funcionários)</h2>
+      <h2 class="text-2xl font-semibold mb-4 text-center text-cyan-400">📊 Relatório Geral da Barbearia</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
         <div class="bg-gray-700 p-4 rounded-lg">
-          <h3 class="text-lg font-medium text-gray-300 mb-2">Faturamento Real</h3>
+          <h3 class="text-lg font-medium text-gray-300 mb-2">Faturamento Real (Semana Atual)</h3>
           <div class="space-y-2 text-left">
             <p class="flex justify-between"><span>Dinheiro:</span> <span id="reportDinheiro" class="font-semibold text-green-400">R$ 0,00</span></p>
             <p class="flex justify-between"><span>Pix:</span> <span id="reportPix" class="font-semibold text-green-400">R$ 0,00</span></p>
@@ -61,25 +61,70 @@
           </div>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg flex flex-col justify-center items-center">
-          <h3 class="text-lg font-medium text-gray-300">Faturamento Bruto Total</h3>
+          <h3 class="text-lg font-medium text-gray-300">Faturamento Bruto Total (Semana Atual)</h3>
           <p id="reportFaturamentoTotal" class="text-3xl font-bold text-cyan-400 mt-2">R$ 0,00</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg">
-          <h3 class="text-lg font-medium text-gray-300 mb-2">Assinaturas</h3>
+          <h3 class="text-lg font-medium text-gray-300 mb-2">Assinaturas (Semana Atual)</h3>
           <p class="text-3xl font-bold" id="reportQtdAssinaturas">0</p>
           <p class="text-gray-400">serviços</p>
           <p class="text-lg font-semibold text-cyan-400 mt-1" id="reportValorAssinaturas">R$ 0,00</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg">
-          <h3 class="text-lg font-medium text-gray-300 mb-2">Cartão Presente</h3>
+          <h3 class="text-lg font-medium text-gray-300 mb-2">Cartão Presente (Semana Atual)</h3>
           <p class="text-3xl font-bold" id="reportQtdCartaoPresente">0</p>
           <p class="text-gray-400">serviços</p>
           <p class="text-lg font-semibold text-cyan-400 mt-1" id="reportValorCartaoPresente">R$ 0,00</p>
         </div>
-        <!-- New section for Admin Report: Commission from Subscriptions/Gift Cards -->
+        <!-- Commission from Subscriptions/Gift Cards -->
         <div class="bg-gray-700 p-4 rounded-lg md:col-span-2 lg:col-span-4 flex flex-col justify-center items-center">
-          <h3 class="text-lg font-medium text-gray-300">Comissão de Assinaturas/Cartão Presente</h3>
+          <h3 class="text-lg font-medium text-gray-300">Comissão de Assinaturas/Cartão Presente (Semana Atual)</h3>
           <p id="reportComissaoAssinaturasCartao" class="text-3xl font-bold text-green-400 mt-2">R$ 0,00</p>
+        </div>
+
+        <!-- NEW: Daily Summary by Payment Method -->
+        <div class="lg:col-span-2 bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-gray-300 mb-2">Faturamento Diário (Hoje)</h3>
+          <div class="space-y-2 text-left">
+            <p class="flex justify-between"><span>Dinheiro:</span> <span id="reportFaturamentoDiarioDinheiro" class="font-semibold text-teal-400">R$ 0,00</span></p>
+            <p class="flex justify-between"><span>Pix:</span> <span id="reportFaturamentoDiarioPix" class="font-semibold text-teal-400">R$ 0,00</span></p>
+            <p class="flex justify-between"><span>Débito:</span> <span id="reportFaturamentoDiarioDebito" class="font-semibold text-teal-400">R$ 0,00</span></p>
+            <p class="flex justify-between"><span>Crédito:</span> <span id="reportFaturamentoDiarioCredito" class="font-semibold text-teal-400">R$ 0,00</span></p>
+          </div>
+        </div>
+
+        <!-- NEW: Barber Ranking (Weekly) -->
+        <div class="lg:col-span-2 bg-gray-700 p-4 rounded-lg flex flex-col">
+          <h3 class="text-lg font-medium text-gray-300 mb-2">Ranking de Faturamento (Semanal)</h3>
+          <div id="barberRankingList" class="space-y-2 flex-grow overflow-y-auto">
+            <!-- Ranking items will be inserted here by JS -->
+          </div>
+        </div>
+
+        <!-- NEW: Store 01 Daily and Weekly Summary -->
+        <div class="lg:col-span-2 bg-gray-700 p-4 rounded-lg">
+            <h3 class="text-lg font-medium text-gray-300 mb-2">Faturamento Diário - Loja 01 (Hoje)</h3>
+            <div class="space-y-2 text-left">
+                <p class="flex justify-between"><span>Dinheiro:</span> <span id="loja01DailyDinheiro" class="font-semibold text-blue-400">R$ 0,00</span></p>
+                <p class="flex justify-between"><span>Pix:</span> <span id="loja01DailyPix" class="font-semibold text-blue-400">R$ 0,00</span></p>
+                <p class="flex justify-between"><span>Débito:</span> <span id="loja01DailyDebito" class="font-semibold text-blue-400">R$ 0,00</span></p>
+                <p class="flex justify-between"><span>Crédito:</span> <span id="loja01DailyCredito" class="font-semibold text-blue-400">R$ 0,00</span></p>
+            </div>
+            <h3 class="text-lg font-medium text-gray-300 mt-4 mb-2">Faturamento Semanal - Loja 01</h3>
+            <p id="loja01WeeklyTotal" class="text-2xl font-bold text-blue-400">R$ 0,00</p>
+        </div>
+
+        <!-- NEW: Store 02 Daily and Weekly Summary -->
+        <div class="lg:col-span-2 bg-gray-700 p-4 rounded-lg">
+            <h3 class="text-lg font-medium text-gray-300 mb-2">Faturamento Diário - Loja 02 (Hoje)</h3>
+            <div class="space-y-2 text-left">
+                <p class="flex justify-between"><span>Dinheiro:</span> <span id="loja02DailyDinheiro" class="font-semibold text-yellow-400">R$ 0,00</span></p>
+                <p class="flex justify-between"><span>Pix:</span> <span id="loja02DailyPix" class="font-semibold text-yellow-400">R$ 0,00</span></p>
+                <p class="flex justify-between"><span>Débito:</span> <span id="loja02DailyDebito" class="font-semibold text-yellow-400">R$ 0,00</span></p>
+                <p class="flex justify-between"><span>Crédito:</span> <span id="loja02DailyCredito" class="font-semibold text-yellow-400">R$ 0,00</span></p>
+            </div>
+            <h3 class="text-lg font-medium text-gray-300 mt-4 mb-2">Faturamento Semanal - Loja 02</h3>
+            <p id="loja02WeeklyTotal" class="text-2xl font-bold text-yellow-400">R$ 0,00</p>
         </div>
       </div>
     </div>
@@ -106,23 +151,33 @@
           <div id="day-selector" class="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-6"></div>
 
           <div id="transaction-form" class="bg-gray-700/50 p-4 rounded-lg space-y-4">
-            <h3 class="font-semibold text-lg">Adicionar Lançamento</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="text" id="clientName" placeholder="Nome do Cliente (opcional)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
-              <input type="text" id="serviceDescription" placeholder="Descrição do Serviço" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+            <h3 class="font-semibold text-lg mb-3">Adicionar Lançamento</h3>
+            
+            <!-- Service Details -->
+            <div class="bg-gray-700/70 p-4 rounded-lg space-y-3 border border-gray-600">
+                <h4 class="font-semibold text-md text-cyan-300">Detalhes do Serviço</h4>
+                <input type="text" id="clientName" placeholder="Nome do Cliente (opcional)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                <input type="text" id="serviceDescription" placeholder="Descrição do Serviço" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="number" id="serviceValue" placeholder="Valor do Serviço (R$)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                    <select id="paymentMethod" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Pix">Pix</option>
+                        <option value="Débito">Débito</option>
+                        <option value="Crédito">Crédito</option>
+                        <option value="Assinatura">Assinatura</option>
+                        <option value="Cartão Presente">Cartão Presente</option>
+                    </select>
+                </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input type="number" id="serviceValue" placeholder="Valor (R$)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
-              <select id="paymentMethod" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
-                <option value="Dinheiro">Dinheiro</option>
-                <option value="Pix">Pix</option>
-                <option value="Débito">Débito</option>
-                <option value="Crédito">Crédito</option>
-                <option value="Assinatura">Assinatura</option>
-                <option value="Cartão Presente">Cartão Presente</option>
-              </select>
-              <input type="number" id="productsSold" placeholder="Qtd. Produtos" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+
+            <!-- Product Details -->
+            <div class="bg-gray-700/70 p-4 rounded-lg space-y-3 border border-gray-600">
+                <h4 class="font-semibold text-md text-cyan-300">Detalhes do Produto</h4>
+                <input type="text" id="productDescription" placeholder="Descrição do Produto (opcional)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                <input type="number" id="productsSold" placeholder="Qtd. Produtos Vendidos" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
             </div>
+
             <button id="addTransactionBtn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center gap-2">
               <i class="fa-solid fa-plus"></i> Adicionar
             </button>
@@ -156,6 +211,16 @@
               <span class="text-gray-400">Comissão Serviços:</span>
               <span id="comissaoServicos">R$ 0,00</span>
             </div>
+            <!-- NEW: Comissão de Assinaturas -->
+            <div class="flex justify-between items-center p-2">
+              <span class="text-gray-400">Comissão Assinaturas:</span>
+              <span id="comissaoAssinaturas">R$ 0,00</span>
+            </div>
+            <!-- NEW: Comissão de Cartão Presente -->
+            <div class="flex justify-between items-center p-2">
+              <span class="text-gray-400">Comissão Cartão Presente:</span>
+              <span id="comissaoCartaoPresente">R$ 0,00</span>
+            </div>
             <div class="flex justify-between items-center p-2">
               <span class="text-gray-400">Comissão Produtos:</span>
               <span id="comissaoProdutos">R$ 0,00</span>
@@ -177,7 +242,7 @@
 
           <!-- Detalhes do Faturamento por Barbeiro -->
           <div id="barberDetailsSection" class="mt-8 bg-gray-700 p-6 rounded-xl shadow-lg border border-gray-600 hidden">
-            <h3 class="text-xl font-semibold mb-4 text-cyan-400">Detalhes do Faturamento</h3>
+            <h3 class="text-xl font-semibold mb-4 text-cyan-400">Detalhes do Faturamento Diário</h3>
             <div class="space-y-3">
               <div class="flex justify-between items-center">
                 <span class="text-gray-300">Assinaturas:</span>
@@ -188,19 +253,19 @@
                 <span id="detalheCartaoPresente" class="font-semibold text-green-400">R$ 0,00</span>
               </div>
               <div class="flex justify-between items-center">
-                <span class="text-gray-300">Dinheiro (Avulso):</span>
+                <span class="text-gray-300">Dinheiro:</span>
                 <span id="detalheDinheiro" class="font-semibold text-green-400">R$ 0,00</span>
               </div>
               <div class="flex justify-between items-center">
-                <span class="text-gray-300">Pix (Avulso):</span>
+                <span class="text-gray-300">Pix:</span>
                 <span id="detalhePix" class="font-semibold text-green-400">R$ 0,00</span>
               </div>
               <div class="flex justify-between items-center">
-                <span class="text-gray-300">Débito (Avulso):</span>
+                <span class="text-gray-300">Débito:</span>
                 <span id="detalheDebito" class="font-semibold text-green-400">R$ 0,00</span>
               </div>
               <div class="flex justify-between items-center">
-                <span class="text-gray-300">Crédito (Avulso):</span>
+                <span class="text-gray-300">Crédito:</span>
                 <span id="detalheCredito" class="font-semibold text-green-400">R$ 0,00</span>
               </div>
               <div class="flex justify-between items-center pt-2 border-t border-gray-600">
@@ -250,22 +315,31 @@
       <button id="close-edit-modal-btn" class="text-gray-400 hover:text-white">&times;</button>
     </div>
     <div id="edit-transaction-form" class="space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="text" id="editClientName" placeholder="Nome do Cliente (opcional)" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
-        <input type="text" id="editServiceDescription" placeholder="Descrição do Serviço" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input type="number" id="editServiceValue" placeholder="Valor (R$)" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
-        <select id="editPaymentMethod" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
-          <option value="Dinheiro">Dinheiro</option>
-          <option value="Pix">Pix</option>
-          <option value="Débito">Débito</option>
-          <option value="Crédito">Crédito</option>
-          <option value="Assinatura">Assinatura</option>
-          <option value="Cartão Presente">Cartão Presente</option>
-        </select>
-        <input type="number" id="editProductsSold" placeholder="Qtd. Produtos" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
-      </div>
+        <!-- Edit Service Details -->
+        <div class="bg-gray-700/70 p-4 rounded-lg space-y-3 border border-gray-600">
+            <h4 class="font-semibold text-md text-cyan-300">Detalhes do Serviço</h4>
+            <input type="text" id="editClientName" placeholder="Nome do Cliente (opcional)" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
+            <input type="text" id="editServiceDescription" placeholder="Descrição do Serviço" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="number" id="editServiceValue" placeholder="Valor do Serviço (R$)" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
+                <select id="editPaymentMethod" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Pix">Pix</option>
+                    <option value="Débito">Débito</option>
+                    <option value="Crédito">Crédito</option>
+                    <option value="Assinatura">Assinatura</option>
+                    <option value="Cartão Presente">Cartão Presente</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Edit Product Details -->
+        <div class="bg-gray-700/70 p-4 rounded-lg space-y-3 border border-gray-600">
+            <h4 class="font-semibold text-md text-cyan-300">Detalhes do Produto</h4>
+            <input type="text" id="editProductDescription" placeholder="Descrição do Produto (opcional)" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
+            <input type="number" id="editProductsSold" placeholder="Qtd. Produtos Vendidos" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+        </div>
+
       <button id="saveEditBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center gap-2">
         <i class="fa-solid fa-save"></i> Salvar Alterações
       </button>
@@ -294,12 +368,22 @@
   // --- SIMULATED USER DATABASE ---
   const users = {
     "admin@exemplo.com": { password: "753951", role: "admin", name: "Admin" },
-    "adrianopessanha@exemplo.com": { password: "123", role: "barber", barberId: "barber-01", name: "adriano Pessanha" },
+    "adrianopessanha@exemplo.com": { password: "123", role: "barber", barberId: "barber-01", name: "Adriano Pessanha" },
     "rodrigo@exemplo.com": { password: "123", role: "barber", barberId: "barber-02", name: "Rodrigo Azevedo" },
     "veloso@exemplo.com": { password: "123", role: "barber", barberId: "barber-03", name: "Veloso" },
     "wellithon@exemplo.com": { password: "123", role: "barber", barberId: "barber-04", name: "Wellithon" },
     "jonata@exemplo.com": { password: "123", role: "barber", barberId: "barber-05", name: "Jonata Silva" },
     "Mauro@exemplo.com": { password: "123", role: "barber", barberId: "barber-06", name: "Mauro" }
+  };
+
+  // Map barbers to stores
+  const barberStoreMap = {
+    "barber-01": "loja02", // Adriano
+    "barber-02": "loja01", // Rodrigo
+    "barber-03": "loja01", // Veloso
+    "barber-04": "loja02", // Wellithon
+    "barber-05": "loja02", // Jonata
+    "barber-06": "loja01"  // Mauro
   };
 
   let db;
@@ -311,7 +395,12 @@
   let currentEditingTransactionId = null;
   let unsubscribeWeeklyData = () => {};
   let unsubscribeHistory = () => {};
-  let unsubscribeAdminReport = () => {};
+  let unsubscribeWeeklyEntriesAdmin = () => {};
+  let unsubscribeWeeklyClosingsAdmin = () => {};
+
+  let latestWeeklyEntriesData = [];
+  let latestWeeklyClosingsData = [];
+
   const weekDays = { 2: 'Terça', 3: 'Quarta', 4: 'Quinta', 5: 'Sexta', 6: 'Sábado' };
 
   let loginScreen, appContainer, barberSelector, mainContent, historySection, daySelector, addTransactionBtn, saveValeBtn, valeInput,
@@ -319,7 +408,11 @@
       editTransactionForm, closeWeekBtn, currentWeekSpan, historyTableBody, historyPlaceholder, summarySpans,
       adminSelectorContainer, welcomeMessage, loginBtn, emailInput, passwordInput, adminReportSection, adminReportSpans,
       detalheAssinaturas, detalheCartaoPresente, detalheDinheiro, detalhePix, detalheDebito, detalheCredito, detalheTotalProdutos,
-      barberDetailsSection, reportComissaoAssinaturasCartao; // New reference for admin report commission
+      barberDetailsSection, reportComissaoAssinaturasCartao, barberRankingList,
+      loja01DailyDinheiro, loja01DailyPix, loja01DailyDebito, loja01DailyCredito, loja01WeeklyTotal,
+      loja02DailyDinheiro, loja02DailyPix, loja02DailyDebito, loja02DailyCredito, loja02WeeklyTotal; // New store-specific DOM references
+
+  let comissaoAssinaturas, comissaoCartaoPresente; // Commission elements for barber summary
 
   const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
@@ -348,11 +441,27 @@
     valeInput = document.getElementById('vale');
     dailyLog = document.getElementById('daily-log');
     dailyLogPlaceholder = document.getElementById('daily-log-placeholder');
-    transactionForm = { clientName: document.getElementById('clientName'), serviceDescription: document.getElementById('serviceDescription'), serviceValue: document.getElementById('serviceValue'), paymentMethod: document.getElementById('paymentMethod'), productsSold: document.getElementById('productsSold') };
+    // Updated transactionForm to include productDescription
+    transactionForm = { 
+        clientName: document.getElementById('clientName'), 
+        serviceDescription: document.getElementById('serviceDescription'), 
+        serviceValue: document.getElementById('serviceValue'), 
+        paymentMethod: document.getElementById('paymentMethod'), 
+        productDescription: document.getElementById('productDescription'), // NEW
+        productsSold: document.getElementById('productsSold') 
+    };
     editModal = document.getElementById('edit-modal');
     closeEditModalBtn = document.getElementById('close-edit-modal-btn');
     saveEditBtn = document.getElementById('saveEditBtn');
-    editTransactionForm = { clientName: document.getElementById('editClientName'), serviceDescription: document.getElementById('editServiceDescription'), serviceValue: document.getElementById('editServiceValue'), paymentMethod: document.getElementById('editPaymentMethod'), productsSold: document.getElementById('editProductsSold') };
+    // Updated editTransactionForm to include editProductDescription
+    editTransactionForm = { 
+        clientName: document.getElementById('editClientName'), 
+        serviceDescription: document.getElementById('editServiceDescription'), 
+        serviceValue: document.getElementById('editServiceValue'), 
+        paymentMethod: document.getElementById('editPaymentMethod'), 
+        productDescription: document.getElementById('editProductDescription'), // NEW
+        productsSold: document.getElementById('editProductsSold') 
+    };
     closeWeekBtn = document.getElementById('closeWeekBtn');
     currentWeekSpan = document.getElementById('currentWeek');
     historyTableBody = document.getElementById('historyTableBody');
@@ -368,9 +477,12 @@
       qtdAssinaturas: document.getElementById('reportQtdAssinaturas'),
       valorAssinaturas: document.getElementById('reportValorAssinaturas'),
       qtdCartaoPresente: document.getElementById('reportQtdCartaoPresente'),
-      valorCartaoPresente: document.getElementById('reportValorCartaoPresente')
+      valorCartaoPresente: document.getElementById('reportValorCartaoPresente'),
+      reportFaturamentoDiarioDinheiro: document.getElementById('reportFaturamentoDiarioDinheiro'),
+      reportFaturamentoDiarioPix: document.getElementById('reportFaturamentoDiarioPix'),
+      reportFaturamentoDiarioDebito: document.getElementById('reportFaturamentoDiarioDebito'),
+      reportFaturamentoDiarioCredito: document.getElementById('reportFaturamentoDiarioCredito'),
     };
-    // New DOM references for detailed breakdown
     detalheAssinaturas = document.getElementById('detalheAssinaturas');
     detalheCartaoPresente = document.getElementById('detalheCartaoPresente');
     detalheDinheiro = document.getElementById('detalheDinheiro');
@@ -378,8 +490,22 @@
     detalheDebito = document.getElementById('detalheDebito');
     detalheCredito = document.getElementById('detalheCredito');
     detalheTotalProdutos = document.getElementById('detalheTotalProdutos');
-    barberDetailsSection = document.getElementById('barberDetailsSection'); // Initialize the new reference
-    reportComissaoAssinaturasCartao = document.getElementById('reportComissaoAssinaturasCartao'); // New reference
+    barberDetailsSection = document.getElementById('barberDetailsSection');
+    reportComissaoAssinaturasCartao = document.getElementById('reportComissaoAssinaturasCartao');
+    barberRankingList = document.getElementById('barberRankingList');
+    loja01DailyDinheiro = document.getElementById('loja01DailyDinheiro');
+    loja01DailyPix = document.getElementById('loja01DailyPix');
+    loja01DailyDebito = document.getElementById('loja01DailyDebito');
+    loja01DailyCredito = document.getElementById('loja01DailyCredito');
+    loja01WeeklyTotal = document.getElementById('loja01WeeklyTotal');
+    loja02DailyDinheiro = document.getElementById('loja02DailyDinheiro');
+    loja02DailyPix = document.getElementById('loja02DailyPix');
+    loja02DailyDebito = document.getElementById('loja02DailyDebito');
+    loja02DailyCredito = document.getElementById('loja02DailyCredito');
+    loja02WeeklyTotal = document.getElementById('loja02WeeklyTotal');
+
+    comissaoAssinaturas = document.getElementById('comissaoAssinaturas');
+    comissaoCartaoPresente = document.getElementById('comissaoCartaoPresente');
   }
 
   async function initializeAppAndAuth() {
@@ -430,14 +556,13 @@
       adminSelectorContainer.classList.remove('hidden');
       adminReportSection.classList.remove('hidden');
       listenToAdminReportData();
-      barberDetailsSection.classList.add('hidden'); // Admin never sees this section
+      barberDetailsSection.classList.add('hidden');
 
       barberSelector.addEventListener('change', () => {
         selectedBarberId = barberSelector.value;
         if (selectedBarberId) {
           mainContent.classList.remove('hidden');
           historySection.classList.remove('hidden');
-          // No change to barberDetailsSection here, it remains hidden for admin
           startListeners();
         } else {
           mainContent.classList.add('hidden');
@@ -446,13 +571,13 @@
           if (unsubscribeHistory) unsubscribeHistory();
         }
       });
-    } else { // Barber role
+    } else {
       adminSelectorContainer.classList.add('hidden');
       adminReportSection.classList.add('hidden');
       selectedBarberId = loggedInUser.barberId;
       mainContent.classList.remove('hidden');
       historySection.classList.remove('hidden');
-      barberDetailsSection.classList.remove('hidden'); // Show for the barber themselves
+      barberDetailsSection.classList.remove('hidden');
       startListeners();
     }
     setupCommonUI();
@@ -464,7 +589,7 @@
     ).join('');
 
     const todayIndex = new Date().getDay();
-    selectedDay = (todayIndex >= 2 && todayIndex <= 6) ? todayIndex : 2; // Default to Tuesday if outside working days
+    selectedDay = (todayIndex >= 2 && todayIndex <= 6) ? todayIndex : 2;
     updateDaySelection();
 
     daySelector.querySelectorAll('.day-btn').forEach(btn => {
@@ -475,9 +600,9 @@
     });
 
     const weekStartDate = new Date();
-    weekStartDate.setDate(weekStartDate.getDate() - (weekStartDate.getDay() - 2 + 7) % 7); // Set to Tuesday of current week
+    weekStartDate.setDate(weekStartDate.getDate() - (weekStartDate.getDay() - 2 + 7) % 7);
     const weekEndDate = new Date(weekStartDate);
-    weekEndDate.setDate(weekEndDate.getDate() + 4); // Saturday
+    weekEndDate.setDate(weekEndDate.getDate() + 4);
 
     currentWeekSpan.textContent = `Semana: ${weekStartDate.toLocaleDateString('pt-BR')} - ${weekEndDate.toLocaleDateString('pt-BR')}`;
 
@@ -486,14 +611,14 @@
     closeWeekBtn.addEventListener('click', closeWeek);
     closeEditModalBtn.addEventListener('click', () => {
       editModal.classList.add('hidden');
-      editModal.classList.remove('flex'); // Remove flex to ensure it's fully hidden
+      editModal.classList.remove('flex');
     });
     saveEditBtn.addEventListener('click', saveEditedTransaction);
   }
 
   function startListeners() {
-    if (unsubscribeWeeklyData) unsubscribeWeeklyData(); // Unsubscribe previous listener
-    if (unsubscribeHistory) unsubscribeHistory(); // Unsubscribe previous listener
+    if (unsubscribeWeeklyData) unsubscribeWeeklyData();
+    if (unsubscribeHistory) unsubscribeHistory();
     listenToWeeklyData();
     listenToClosingsHistory();
   }
@@ -520,27 +645,52 @@
       transactions.forEach(t => {
         const item = document.createElement('div');
         item.className = 'transaction-item bg-gray-600/50 p-3 rounded-md flex justify-between items-center';
+        
+        let descriptionHtml = '';
+        // Display service details if available
+        if (t.serviceDescription && t.value > 0) {
+            descriptionHtml += `<p class="font-semibold">${t.serviceDescription} <span class="text-cyan-400">${formatCurrency(t.value)}</span> <span class="text-gray-400">(${t.paymentMethod})</span></p>`;
+        }
+        // Display product details if available
+        if (t.productDescription && t.products > 0) {
+            // If there's also a service, put product on a new line for clarity
+            if (t.serviceDescription && t.value > 0) {
+                descriptionHtml += `<p class="text-sm text-gray-400 mt-1">Produto: ${t.productDescription} <span class="text-cyan-400">(${t.products} unid.)</span></p>`;
+            } else {
+                // If only product, make it the primary line
+                descriptionHtml += `<p class="font-semibold">Produto: ${t.productDescription} <span class="text-cyan-400">(${t.products} unid.)</span></p>`;
+            }
+        }
+        // Display client name if available
+        if (t.clientName) {
+            descriptionHtml += `<p class="text-xs text-gray-500">Cliente: ${t.clientName}</p>`;
+        }
+        
         item.innerHTML = `
           <div>
-            <p class="font-semibold">${t.serviceDescription} ${t.clientName ? `<span class="text-gray-400 font-normal">- ${t.clientName}</span>` : ''}</p>
-            <p class="text-sm text-cyan-400">${formatCurrency(t.value)} <span class="text-gray-400">(${t.paymentMethod})</span> ${t.products > 0 ? `<span class="text-gray-400">+ ${t.products} prod.</span>` : ''}</p>
+            ${descriptionHtml}
           </div>
           <div class="flex items-center gap-3">
             <button class="action-btn edit-btn text-blue-400 hover:text-blue-300" data-id="${t.id}"><i class="fa-solid fa-pencil"></i></button>
-            <button class="action-btn delete-btn text-red-500 hover:text-red-400" data-id="${t.id}"><i class="fa-solid fa-trash"></i></button>
+            <button class="action-btn delete-btn text-red-500 hover:text-red-400" data-id="${t.id}" data-transaction-day-index="${selectedDay}"><i class="fa-solid fa-trash"></i></button>
           </div>
         `;
         dailyLog.appendChild(item);
       });
     }
 
-    dailyLog.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => deleteTransaction(btn.dataset.id)));
+    // Pass transactionDayIndex to deleteTransaction
+    dailyLog.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', (event) => {
+      const transactionId = event.currentTarget.dataset.id;
+      const transactionDayIndex = parseInt(event.currentTarget.dataset.transactionDayIndex);
+      deleteTransaction(transactionId, transactionDayIndex);
+    }));
     dailyLog.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
     valeInput.value = dayData.vale || '';
   }
 
   async function updateFirestoreData(newData) {
-    if (!selectedBarberId) return; // Ensure a barber is selected
+    if (!selectedBarberId) return;
     try {
       const docRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);
       await setDoc(docRef, newData);
@@ -551,40 +701,66 @@
   }
 
   async function addTransaction() {
-    const value = parseFloat(transactionForm.serviceValue.value);
-    if (!transactionForm.serviceDescription.value || isNaN(value) || value <= 0) {
-      alert("Por favor, preencha a descrição e um valor válido para o serviço.");
-      return;
+    const serviceValue = parseFloat(transactionForm.serviceValue.value) || 0;
+    const productsSold = parseInt(transactionForm.productsSold.value) || 0;
+
+    // Validation: At least one of service or product must have a value/quantity
+    if ((!transactionForm.serviceDescription.value && serviceValue <= 0) && (!transactionForm.productDescription.value && productsSold <= 0)) {
+        alert("Por favor, preencha a descrição e um valor válido para o serviço, OU a descrição e quantidade para o produto.");
+        return;
+    }
+    // If service value is entered, description is required
+    if (serviceValue > 0 && !transactionForm.serviceDescription.value.trim()) {
+        alert("Por favor, preencha a descrição do serviço.");
+        return;
+    }
+    // If products sold is entered, description is required
+    if (productsSold > 0 && !transactionForm.productDescription.value.trim()) {
+        alert("Por favor, preencha a descrição do produto.");
+        return;
     }
 
+
     const newTransaction = {
-      id: crypto.randomUUID(), // Unique ID for the transaction
+      id: crypto.randomUUID(),
       clientName: transactionForm.clientName.value.trim(),
       serviceDescription: transactionForm.serviceDescription.value.trim(),
-      value: value,
+      value: serviceValue, // Value for the service
       paymentMethod: transactionForm.paymentMethod.value,
-      products: parseInt(transactionForm.productsSold.value) || 0
+      productDescription: transactionForm.productDescription.value.trim(), // NEW
+      products: productsSold // Quantity of products
     };
 
     const dayKey = weekDays[selectedDay];
-    const updatedData = JSON.parse(JSON.stringify(weeklyData)); // Deep copy to avoid direct mutation issues
+    const updatedData = JSON.parse(JSON.stringify(weeklyData));
 
     if (!updatedData[dayKey]) updatedData[dayKey] = { transactions: [], vale: 0 };
-    if (!updatedData[dayKey].transactions) updatedData[dayKey].transactions = []; // Ensure transactions array exists
+    if (!updatedData[dayKey].transactions) updatedData[dayKey].transactions = [];
 
     updatedData[dayKey].transactions.push(newTransaction);
 
     await updateFirestoreData(updatedData);
 
     // Clear form fields after adding
-    Object.values(transactionForm).forEach(input => input.value = '');
-    transactionForm.paymentMethod.value = 'Dinheiro'; // Reset select
+    transactionForm.clientName.value = '';
+    transactionForm.serviceDescription.value = '';
+    transactionForm.serviceValue.value = '';
+    transactionForm.paymentMethod.value = 'Dinheiro';
+    transactionForm.productDescription.value = ''; // NEW
+    transactionForm.productsSold.value = '';
   }
 
-  async function deleteTransaction(transactionId) {
+  async function deleteTransaction(transactionId, transactionDayIndex) {
+    const currentDayIndex = new Date().getDay();
+
+    if (loggedInUser.role === 'barber' && transactionDayIndex !== currentDayIndex) {
+      alert("Você só pode excluir lançamentos do dia atual.");
+      return;
+    }
+
     if (!confirm("Tem certeza que deseja apagar este lançamento?")) return;
 
-    const dayKey = weekDays[selectedDay];
+    const dayKey = weekDays[transactionDayIndex]; // Use the actual day of the transaction
     const updatedData = JSON.parse(JSON.stringify(weeklyData));
 
     if (updatedData[dayKey] && updatedData[dayKey].transactions) {
@@ -604,14 +780,35 @@
     editTransactionForm.serviceDescription.value = transaction.serviceDescription || '';
     editTransactionForm.serviceValue.value = transaction.value || '';
     editTransactionForm.paymentMethod.value = transaction.paymentMethod || 'Dinheiro';
+    editTransactionForm.productDescription.value = transaction.productDescription || ''; // NEW
     editTransactionForm.productsSold.value = transaction.products || '';
 
     editModal.classList.remove('hidden');
-    editModal.classList.add('flex'); // Add flex to center the modal
+    editModal.classList.add('flex');
   }
 
   async function saveEditedTransaction() {
     if (!currentEditingTransactionId) return;
+
+    const serviceValue = parseFloat(editTransactionForm.serviceValue.value) || 0;
+    const productsSold = parseInt(editTransactionForm.productsSold.value) || 0;
+
+    // Validation: At least one of service or product must have a value/quantity
+    if ((!editTransactionForm.serviceDescription.value && serviceValue <= 0) && (!editTransactionForm.productDescription.value && productsSold <= 0)) {
+        alert("Por favor, preencha a descrição e um valor válido para o serviço, OU a descrição e quantidade para o produto.");
+        return;
+    }
+    // If service value is entered, description is required
+    if (serviceValue > 0 && !editTransactionForm.serviceDescription.value.trim()) {
+        alert("Por favor, preencha a descrição do serviço.");
+        return;
+    }
+    // If products sold is entered, description is required
+    if (productsSold > 0 && !editTransactionForm.productDescription.value.trim()) {
+        alert("Por favor, preencha a descrição do produto.");
+        return;
+    }
+
 
     const dayKey = weekDays[selectedDay];
     const updatedData = JSON.parse(JSON.stringify(weeklyData));
@@ -622,16 +819,17 @@
         ...updatedData[dayKey].transactions[transactionIndex],
         clientName: editTransactionForm.clientName.value.trim(),
         serviceDescription: editTransactionForm.serviceDescription.value.trim(),
-        value: parseFloat(editTransactionForm.serviceValue.value) || 0,
+        value: serviceValue,
         paymentMethod: editTransactionForm.paymentMethod.value,
-        products: parseInt(editTransactionForm.productsSold.value) || 0
+        productDescription: editTransactionForm.productDescription.value.trim(), // NEW
+        products: productsSold
       };
       updatedData[dayKey].transactions[transactionIndex] = updatedTransaction;
       await updateFirestoreData(updatedData);
     }
 
     editModal.classList.add('hidden');
-    editModal.classList.remove('flex'); // Hide modal
+    editModal.classList.remove('flex');
     currentEditingTransactionId = null;
   }
 
@@ -648,11 +846,10 @@
   }
 
   function listenToWeeklyData() {
-    if (!selectedBarberId) return; // Only listen if a barber is selected
+    if (!selectedBarberId) return;
 
     const docRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);
 
-    // Unsubscribe from previous listener if exists
     if (unsubscribeWeeklyData) unsubscribeWeeklyData();
 
     unsubscribeWeeklyData = onSnapshot(docRef, (docSnap) => {
@@ -660,100 +857,140 @@
       renderDailyLog();
       calculateWeeklySummary();
     }, (error) => {
-      console.error("Error listening to weekly data:", error);
+      console.error("Erro ao ouvir dados semanais:", error);
       alert("ERRO AO CARREGAR DADOS: Verifique suas Regras de Segurança no painel do Firebase. O acesso pode estar bloqueado. Detalhes: " + error.message);
     });
   }
 
   function calculateWeeklySummary() {
-    let totalBruto = 0, comissaoServicos = 0, totalVale = 0, totalProdutos = 0;
-    let detalheAssinaturasVal = 0, detalheCartaoPresenteVal = 0,
-        detalheDinheiroVal = 0, detalhePixVal = 0, detalheDebitoVal = 0, detalheCreditoVal = 0;
-    let detalheTotalProdutosVal = 0;
+    // --- Weekly Summary for "Resumo da Semana" (entire week) ---
+    let totalBrutoSemana = 0; // Only real payments
+    let comissaoServicosSemana = 0; // Only real payments, with deductions
+    let comissaoAssinaturasSemana = 0;
+    let comissaoCartaoPresenteSemana = 0;
+    let totalValeSemana = 0;
+    let totalProdutosSemana = 0;
 
+    // --- Daily Details for "Detalhes do Faturamento Diário" (selected day only) ---
+    let detalheAssinaturasDia = 0;
+    let detalheCartaoPresenteDia = 0;
+    let detalheDinheiroDia = 0;
+    let detalhePixDia = 0;
+    let detalheDebitoDia = 0;
+    let detalheCreditoDia = 0;
+    let detalheTotalProdutosDia = 0;
+
+    // Get transactions for the currently selected day
+    const dayDataForSelectedDay = weeklyData[weekDays[selectedDay]] || { transactions: [], vale: 0 };
+    const transactionsForSelectedDay = dayDataForSelectedDay.transactions || [];
+
+    // Calculate details for the selected day
+    transactionsForSelectedDay.forEach(t => {
+        detalheTotalProdutosDia += t.products || 0;
+        switch (t.paymentMethod) {
+            case 'Assinatura':
+                detalheAssinaturasDia += t.value;
+                break;
+            case 'Cartão Presente':
+                detalheCartaoPresenteDia += t.value;
+                break;
+            case 'Dinheiro':
+                detalheDinheiroDia += t.value;
+                break;
+            case 'Pix':
+                detalhePixDia += t.value;
+                break;
+            case 'Débito':
+                detalheDebitoDia += t.value;
+                break;
+            case 'Crédito':
+                detalheCreditoDia += t.value;
+                break;
+        }
+    });
+
+
+    // Calculate overall weekly summary (for "Resumo da Semana" section)
     Object.values(weeklyData).forEach(dayData => {
       const transactions = dayData.transactions || [];
       transactions.forEach(t => {
-        totalBruto += t.value;
-        detalheTotalProdutosVal += t.products || 0; // Sum total products for detailed breakdown
+        totalProdutosSemana += t.products || 0; // Products always count for commission
 
-        let commissionableValue = t.value;
-        // Apply deductions for card payments
-        if (t.paymentMethod === 'Débito') {
-          commissionableValue *= (1 - 0.015); // 1.5% deduction
-        } else if (t.paymentMethod === 'Crédito') {
-          commissionableValue *= (1 - 0.05); // 5% deduction
-        }
-        comissaoServicos += commissionableValue * 0.50; // 50% commission on services
-
-        // Categorize for detailed breakdown
-        switch (t.paymentMethod) {
-          case 'Assinatura':
-            detalheAssinaturasVal += t.value;
-            break;
-          case 'Cartão Presente':
-            detalheCartaoPresenteVal += t.value;
-            break;
-          case 'Dinheiro':
-            detalheDinheiroVal += t.value;
-            break;
-          case 'Pix':
-            detalhePixVal += t.value;
-            break;
-          case 'Débito':
-            detalheDebitoVal += t.value;
-            break;
-          case 'Crédito':
-            detalheCreditoVal += t.value;
-            break;
+        // Calculate commissions based on payment method for weekly summary
+        if (t.paymentMethod === 'Assinatura') {
+          comissaoAssinaturasSemana += t.value * 0.50; // 50% commission for subscriptions
+        } else if (t.paymentMethod === 'Cartão Presente') {
+          comissaoCartaoPresenteSemana += t.value * 0.50; // 50% commission for gift cards
+        } else { // Real payments: Dinheiro, Pix, Débito, Crédito
+          totalBrutoSemana += t.value; // Only real payments count for total bruto
+          let commissionableValue = t.value;
+          if (t.paymentMethod === 'Débito') commissionableValue *= (1 - 0.015);
+          else if (t.paymentMethod === 'Crédito') commissionableValue *= (1 - 0.05);
+          comissaoServicosSemana += commissionableValue * 0.50; // 50% commission on services (after deductions)
         }
       });
-      totalVale += dayData.vale || 0;
+      totalValeSemana += dayData.vale || 0;
     });
 
-    const comissaoProdutos = detalheTotalProdutosVal * 5; // R$5.00 per product
-    const subtotalComissao = comissaoServicos + comissaoProdutos;
-    const comissaoFinal = subtotalComissao - totalVale;
+    const comissaoProdutosSemana = totalProdutosSemana * 5; // R$5.00 per product
+    const subtotalComissaoSemana = comissaoServicosSemana + comissaoAssinaturasSemana + comissaoCartaoPresenteSemana + comissaoProdutosSemana;
+    const comissaoFinalSemana = subtotalComissaoSemana - totalValeSemana;
 
-    summarySpans.faturamentoBruto.textContent = formatCurrency(totalBruto);
-    summarySpans.comissaoServicos.textContent = formatCurrency(comissaoServicos);
-    summarySpans.comissaoProdutos.textContent = formatCurrency(comissaoProdutos);
-    summarySpans.subtotalComissao.textContent = formatCurrency(subtotalComissao);
-    summarySpans.descontoVale.textContent = `- ${formatCurrency(totalVale)}`;
-    summarySpans.comissaoFinal.textContent = formatCurrency(comissaoFinal);
+    // Update "Resumo da Semana" UI
+    summarySpans.faturamentoBruto.textContent = formatCurrency(totalBrutoSemana);
+    summarySpans.comissaoServicos.textContent = formatCurrency(comissaoServicosSemana);
+    summarySpans.comissaoProdutos.textContent = formatCurrency(comissaoProdutosSemana);
+    comissaoAssinaturas.textContent = formatCurrency(comissaoAssinaturasSemana);
+    comissaoCartaoPresente.textContent = formatCurrency(comissaoCartaoPresenteSemana);
+    summarySpans.subtotalComissao.textContent = formatCurrency(subtotalComissaoSemana);
+    summarySpans.descontoVale.textContent = `- ${formatCurrency(totalValeSemana)}`;
+    summarySpans.comissaoFinal.textContent = formatCurrency(comissaoFinalSemana);
 
-    // Update detailed breakdown spans
-    detalheAssinaturas.textContent = formatCurrency(detalheAssinaturasVal);
-    detalheCartaoPresente.textContent = formatCurrency(detalheCartaoPresenteVal);
-    detalheDinheiro.textContent = formatCurrency(detalheDinheiroVal);
-    detalhePix.textContent = formatCurrency(detalhePixVal);
-    detalheDebito.textContent = formatCurrency(detalheDebitoVal);
-    detalheCredito.textContent = formatCurrency(detalheCreditoVal);
-    detalheTotalProdutos.textContent = detalheTotalProdutosVal; // Display quantity for products
+    // Update "Detalhes do Faturamento Diário" UI
+    detalheAssinaturas.textContent = formatCurrency(detalheAssinaturasDia);
+    detalheCartaoPresente.textContent = formatCurrency(detalheCartaoPresenteDia);
+    detalheDinheiro.textContent = formatCurrency(detalheDinheiroDia);
+    detalhePix.textContent = formatCurrency(detalhePixDia);
+    detalheDebito.textContent = formatCurrency(detalheDebitoDia);
+    detalheCredito.textContent = formatCurrency(detalheCreditoDia);
+    detalheTotalProdutos.textContent = detalheTotalProdutosDia;
   }
 
   // --- ADMIN REPORT FUNCTIONS ---
   function listenToAdminReportData() {
-    if (unsubscribeAdminReport) unsubscribeAdminReport(); // Unsubscribe previous listener
+    if (unsubscribeWeeklyEntriesAdmin) unsubscribeWeeklyEntriesAdmin();
+    if (unsubscribeWeeklyClosingsAdmin) unsubscribeWeeklyClosingsAdmin();
 
     const weeklyEntriesRef = collectionGroup(db, 'weekly_entries');
-    const q = query(weeklyEntriesRef);
 
-    unsubscribeAdminReport = onSnapshot(q, (snapshot) => {
-      const allWeeksData = snapshot.docs
-        .filter(doc => doc.id === currentWeekId) // Filter for the current week only
-        .map(doc => doc.data());
-
-      calculateAdminReport(allWeeksData);
+    unsubscribeWeeklyEntriesAdmin = onSnapshot(weeklyEntriesRef, (entriesSnapshot) => {
+      latestWeeklyEntriesData = entriesSnapshot.docs.map(doc => ({
+        type: 'entry',
+        id: doc.id,
+        barberId: doc.ref.parent.parent.id, // Get barberId from path
+        data: doc.data()
+      }));
+      calculateAdminReport(latestWeeklyEntriesData);
     }, (error) => {
-      console.error("Error listening to Admin Report data:", error);
-      // No alert here, as it's a background report and might be too intrusive
+      console.error("Erro ao ouvir dados de entradas semanais para o relatório do administrador:", error);
+    });
+
+    unsubscribeWeeklyClosingsAdmin = onSnapshot(collectionGroup(db, 'weekly_closings'), (closingsSnapshot) => {
+      latestWeeklyClosingsData = closingsSnapshot.docs.map(doc => ({
+        type: 'closing',
+        id: doc.id,
+        barberId: doc.ref.parent.parent.id,
+        data: doc.data()
+      }));
+      calculateAdminReport(latestWeeklyEntriesData); // Still pass entries for current week calculations
+    }, (error) => {
+      console.error("Erro ao ouvir dados de fechamentos semanais para o relatório do administrador:", error);
     });
   }
 
-  function calculateAdminReport(allWeeksData) {
+  function calculateAdminReport(allEntriesData) {
     const totals = {
-      faturamentoTotal: 0,
+      faturamentoTotalCurrentWeek: 0, // Overall weekly real faturamento
       dinheiro: 0,
       pix: 0,
       debito: 0,
@@ -762,47 +999,130 @@
       valorAssinaturas: 0,
       qtdCartaoPresente: 0,
       valorCartaoPresente: 0,
-      comissaoAssinaturasCartao: 0 // New total for admin report
+      comissaoAssinaturasCartao: 0,
+      faturamentoDiarioDinheiro: 0,
+      faturamentoDiarioPix: 0,
+      faturamentoDiarioDebito: 0,
+      faturamentoDiarioCredito: 0,
+      loja01DailyDinheiro: 0,
+      loja01DailyPix: 0,
+      loja01DailyDebito: 0,
+      loja01DailyCredito: 0,
+      loja01WeeklyTotal: 0, // Loja 01 weekly real faturamento
+      loja02DailyDinheiro: 0,
+      loja02DailyPix: 0,
+      loja02DailyDebito: 0,
+      loja02DailyCredito: 0,
+      loja02WeeklyTotal: 0, // Loja 02 weekly real faturamento
     };
 
-    for (const week of allWeeksData) {
-      for (const day of Object.values(week)) {
-        if (day.transactions && Array.isArray(day.transactions)) {
-          for (const t of day.transactions) {
-            totals.faturamentoTotal += t.value;
-            switch (t.paymentMethod) {
-              case 'Dinheiro':
-                totals.dinheiro += t.value;
-                break;
-              case 'Pix':
-                totals.pix += t.value;
-                break;
-              case 'Débito':
-                totals.debito += t.value;
-                break;
-              case 'Crédito':
-                totals.credito += t.value;
-                break;
-              case 'Assinatura':
-                totals.qtdAssinaturas++;
-                totals.valorAssinaturas += t.value;
-                // Calculate commission for subscriptions/gift cards
-                totals.comissaoAssinaturasCartao += t.value * 0.50; // 50% commission
-                break;
-              case 'Cartão Presente':
-                totals.qtdCartaoPresente++;
-                totals.valorCartaoPresente += t.value;
-                // Calculate commission for subscriptions/gift cards
-                totals.comissaoAssinaturasCartao += t.value * 0.50; // 50% commission
-                break;
-            }
-          }
+    const barberWeeklyRevenue = {}; // To store weekly real revenue per barber for ranking
+
+    const today = new Date();
+    const currentDayOfWeek = today.getDay();
+    const currentDayKey = weekDays[currentDayOfWeek];
+    const currentWeekIdCalculated = getWeekId(today);
+
+    const barberNames = {};
+    for (const email in users) {
+        if (users[email].role === 'barber') {
+            barberNames[users[email].barberId] = users[email].name;
         }
-      }
     }
 
-    // Update UI
-    adminReportSpans.faturamentoTotal.textContent = formatCurrency(totals.faturamentoTotal);
+    for (const item of allEntriesData) {
+        const barberId = item.barberId;
+        const barberStore = barberStoreMap[barberId];
+        let weeklyTransactionsByDay = item.data;
+        let itemWeekId = item.id;
+
+        if (itemWeekId === currentWeekIdCalculated) {
+            if (!barberWeeklyRevenue[barberId]) {
+                barberWeeklyRevenue[barberId] = 0;
+            }
+
+            for (const dayKey in weeklyTransactionsByDay) {
+                const dayData = weeklyTransactionsByDay[dayKey] || {};
+                const transactions = dayData.transactions || [];
+
+                for (const t of transactions) {
+                    // Always accumulate for Assinaturas/Cartão Presente specific totals (these are not 'real' faturamento)
+                    if (t.paymentMethod === 'Assinatura') {
+                        totals.qtdAssinaturas++;
+                        totals.valorAssinaturas += t.value;
+                        totals.comissaoAssinaturasCartao += t.value * 0.50;
+                    } else if (t.paymentMethod === 'Cartão Presente') {
+                        totals.qtdCartaoPresente++;
+                        totals.valorCartaoPresente += t.value;
+                        totals.comissaoAssinaturasCartao += t.value * 0.50;
+                    }
+
+                    // Only include 'real' payments in Faturamento Bruto (overall and per barber)
+                    if (t.paymentMethod !== 'Assinatura' && t.paymentMethod !== 'Cartão Presente') {
+                        totals.faturamentoTotalCurrentWeek += t.value; // Overall weekly real faturamento
+                        barberWeeklyRevenue[barberId] += t.value; // Barber weekly real faturamento for ranking
+
+                        // Daily totals for today (across all barbers) - ONLY REAL PAYMENTS
+                        if (weekDays[currentDayOfWeek] === dayKey) {
+                            switch (t.paymentMethod) {
+                                case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.value; break;
+                                case 'Pix': totals.faturamentoDiarioPix += t.value; break;
+                                case 'Débito': totals.faturamentoDiarioDebito += t.value; break;
+                                case 'Crédito': totals.faturamentoDiarioCredito += t.value; break;
+                            }
+
+                            // Daily totals by store for today - ONLY REAL PAYMENTS
+                            if (barberStore === 'loja01') {
+                                switch (t.paymentMethod) {
+                                    case 'Dinheiro': totals.loja01DailyDinheiro += t.value; break;
+                                    case 'Pix': totals.loja01DailyPix += t.value; break;
+                                    case 'Débito': totals.loja01DailyDebito += t.value; break;
+                                    case 'Crédito': totals.loja01DailyCredito += t.value; break;
+                                }
+                            } else if (barberStore === 'loja02') {
+                                switch (t.paymentMethod) {
+                                    case 'Dinheiro': totals.loja02DailyDinheiro += t.value; break;
+                                    case 'Pix': totals.loja02DailyPix += t.value; break;
+                                    case 'Débito': totals.loja02DailyDebito += t.value; break;
+                                    case 'Crédito': totals.loja02DailyCredito += t.value; break;
+                                }
+                            }
+                        }
+
+                        // Weekly totals by store - ONLY REAL PAYMENTS
+                        if (barberStore === 'loja01') {
+                            totals.loja01WeeklyTotal += t.value;
+                        } else if (barberStore === 'loja02') {
+                            totals.loja02WeeklyTotal += t.value;
+                        }
+
+                        // Accumulate for other weekly breakdowns (Dinheiro, Pix, etc. for overall) - ONLY REAL PAYMENTS
+                        switch (t.paymentMethod) {
+                            case 'Dinheiro': totals.dinheiro += t.value; break;
+                            case 'Pix': totals.pix += t.value; break;
+                            case 'Débito': totals.debito += t.value; break;
+                            case 'Crédito': totals.credito += t.value; break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Prepare barber ranking (weekly)
+    const rankedBarbersWeekly = Object.keys(barberWeeklyRevenue).map(barberId => ({
+        name: barberNames[barberId] || `Barbeiro ${barberId}`,
+        revenue: barberWeeklyRevenue[barberId]
+    })).sort((a, b) => b.revenue - a.revenue); // Sort descending
+
+    // Update UI for daily breakdown (overall)
+    adminReportSpans.reportFaturamentoDiarioDinheiro.textContent = formatCurrency(totals.faturamentoDiarioDinheiro);
+    adminReportSpans.reportFaturamentoDiarioPix.textContent = formatCurrency(totals.faturamentoDiarioPix);
+    adminReportSpans.reportFaturamentoDiarioDebito.textContent = formatCurrency(totals.faturamentoDiarioDebito);
+    adminReportSpans.reportFaturamentoDiarioCredito.textContent = formatCurrency(totals.faturamentoDiarioCredito);
+
+    // Update UI for weekly summary (overall)
+    adminReportSpans.faturamentoTotal.textContent = formatCurrency(totals.faturamentoTotalCurrentWeek);
     adminReportSpans.dinheiro.textContent = formatCurrency(totals.dinheiro);
     adminReportSpans.pix.textContent = formatCurrency(totals.pix);
     adminReportSpans.debito.textContent = formatCurrency(totals.debito);
@@ -811,10 +1131,37 @@
     adminReportSpans.valorAssinaturas.textContent = formatCurrency(totals.valorAssinaturas);
     adminReportSpans.qtdCartaoPresente.textContent = totals.qtdCartaoPresente;
     adminReportSpans.valorCartaoPresente.textContent = formatCurrency(totals.valorCartaoPresente);
-    reportComissaoAssinaturasCartao.textContent = formatCurrency(totals.comissaoAssinaturasCartao); // Update new span
-  }
-  // -----------------------------
+    reportComissaoAssinaturasCartao.textContent = formatCurrency(totals.comissaoAssinaturasCartao);
 
+    // Update UI for store-specific daily and weekly totals
+    loja01DailyDinheiro.textContent = formatCurrency(totals.loja01DailyDinheiro);
+    loja01DailyPix.textContent = formatCurrency(totals.loja01DailyPix);
+    loja01DailyDebito.textContent = formatCurrency(totals.loja01DailyDebito);
+    loja01DailyCredito.textContent = formatCurrency(totals.loja01DailyCredito);
+    loja01WeeklyTotal.textContent = formatCurrency(totals.loja01WeeklyTotal);
+
+    loja02DailyDinheiro.textContent = formatCurrency(totals.loja02DailyDinheiro);
+    loja02DailyPix.textContent = formatCurrency(totals.loja02DailyPix);
+    loja02DailyDebito.textContent = formatCurrency(totals.loja02DailyDebito);
+    loja02DailyCredito.textContent = formatCurrency(totals.loja02DailyCredito);
+    loja02WeeklyTotal.textContent = formatCurrency(totals.loja02WeeklyTotal);
+
+    // Render barber ranking (weekly)
+    barberRankingList.innerHTML = '';
+    if (rankedBarbersWeekly.length === 0) {
+        barberRankingList.innerHTML = '<p class="text-gray-500 text-center">Nenhum faturamento semanal registrado ainda.</p>';
+    } else {
+        rankedBarbersWeekly.forEach((barber, index) => {
+            const rankItem = document.createElement('div');
+            rankItem.className = 'flex justify-between items-center bg-gray-700/50 p-3 rounded-md';
+            rankItem.innerHTML = `
+                <span class="font-medium text-gray-300">${index + 1}. ${barber.name}</span>
+                <span class="font-bold text-lg text-green-400">${formatCurrency(barber.revenue)}</span>
+            `;
+            barberRankingList.appendChild(rankItem);
+        });
+    }
+  }
 
   async function closeWeek() {
     if (Object.keys(weeklyData).length === 0) {
@@ -827,33 +1174,42 @@
     }
 
     let totalBruto = 0, comissaoServicos = 0, totalVale = 0, totalProdutos = 0;
+    let comissaoAssinaturasVal = 0; // NEW
+    let comissaoCartaoPresenteVal = 0; // NEW
 
     Object.values(weeklyData).forEach(dayData => {
       const transactions = dayData.transactions || [];
       transactions.forEach(t => {
-        totalBruto += t.value;
-        totalProdutos += t.products || 0;
+        totalProdutos += t.products || 0; // Products always count for commission
 
-        let commissionableValue = t.value;
-        if (t.paymentMethod === 'Débito') commissionableValue *= (1 - 0.015);
-        else if (t.paymentMethod === 'Crédito') commissionableValue *= (1 - 0.05);
-        comissaoServicos += commissionableValue * 0.50;
+        // Calculate commissions based on payment method
+        if (t.paymentMethod === 'Assinatura') {
+          comissaoAssinaturasVal += t.value * 0.50; // 50% commission for subscriptions
+        } else if (t.paymentMethod === 'Cartão Presente') {
+          comissaoCartaoPresenteVal += t.value * 0.50; // 50% commission for gift cards
+        } else { // Real payments: Dinheiro, Pix, Débito, Crédito
+          totalBruto += t.value; // Only real payments count for total bruto
+          let commissionableValue = t.value;
+          if (t.paymentMethod === 'Débito') commissionableValue *= (1 - 0.015);
+          else if (t.paymentMethod === 'Crédito') commissionableValue *= (1 - 0.05);
+          comissaoServicos += commissionableValue * 0.50; // 50% commission on services (after deductions)
+        }
       });
       totalVale += dayData.vale || 0;
     });
 
     const comissaoProdutos = totalProdutos * 5;
-    const comissaoFinal = (comissaoServicos + comissaoProdutos) - totalVale;
+    // NEW: Subtotal Comissão now includes all commission types
+    const subtotalComissao = comissaoServicos + comissaoAssinaturasVal + comissaoCartaoPresenteVal + comissaoProdutos;
+    const comissaoFinal = subtotalComissao - totalVale;
 
-    // Calculate week start and end dates for the closing record
     const weekStartDate = new Date();
-    weekStartDate.setDate(weekStartDate.getDate() - (weekStartDate.getDay() - 2 + 7) % 7); // Set to Tuesday of current week
+    weekStartDate.setDate(weekStartDate.getDate() - (weekStartDate.getDay() - 2 + 7) % 7);
     const weekEndDate = new Date(weekStartDate);
-    weekEndDate.setDate(weekEndDate.getDate() + 4); // Saturday
+    weekEndDate.setDate(weekEndDate.getDate() + 4);
     const periodo = `${weekStartDate.toLocaleDateString('pt-BR')} - ${weekEndDate.toLocaleDateString('pt-BR')}`;
 
     try {
-      // Add to weekly_closings collection
       const historyCollectionRef = collection(db, "barbers", selectedBarberId, "weekly_closings");
       await addDoc(historyCollectionRef, {
         weekId: currentWeekId,
@@ -861,18 +1217,17 @@
         faturamentoBruto: totalBruto,
         totalVale,
         comissaoPaga: comissaoFinal,
-        closedAt: serverTimestamp(), // Use server timestamp
+        closedAt: serverTimestamp(),
         details: weeklyData // Store a snapshot of the week's data
       });
 
-      // Delete the current week's entry from weekly_entries
       const weekDocRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);
       await deleteDoc(weekDocRef);
 
       alert(`Semana ${periodo} fechada com sucesso! Comissão final: ${formatCurrency(comissaoFinal)}.`);
 
     } catch (error) {
-      console.error("Error closing week: ", error);
+      console.error("Erro ao fechar a semana: ", error);
       alert("Ocorreu um erro ao fechar a semana.");
     }
   }
@@ -881,17 +1236,15 @@
     if (!selectedBarberId) return;
 
     const historyCollectionRef = collection(db, "barbers", selectedBarberId, "weekly_closings");
-    const q = query(historyCollectionRef); // No orderBy to avoid index issues
+    const q = query(historyCollectionRef);
 
-    // Unsubscribe from previous listener if exists
     if (unsubscribeHistory) unsubscribeHistory();
 
     unsubscribeHistory = onSnapshot(q, (snapshot) => {
-      historyTableBody.innerHTML = ''; // Clear existing history
+      historyTableBody.innerHTML = '';
       historyPlaceholder.style.display = snapshot.empty ? 'block' : 'none';
 
       let docs = snapshot.docs.map(d => d.data());
-      // Sort in memory by closedAt timestamp in descending order
       docs.sort((a,b) => (b.closedAt?.seconds || 0) - (a.closedAt?.seconds || 0));
 
       docs.forEach(data => {
@@ -906,12 +1259,11 @@
         historyTableBody.appendChild(tr);
       });
     }, (error) => {
-      console.error("Error listening to history:", error);
+      console.error("Erro ao ouvir o histórico:", error);
       alert("ERRO AO CARREGAR HISTÓRICO: Verifique suas Regras de Segurança no painel do Firebase. Detalhes: " + error.message);
     });
   }
 
-  // Initialize app when DOM is fully loaded
   document.addEventListener('DOMContentLoaded', initializeAppAndAuth);
 </script>
 </body>

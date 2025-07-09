@@ -1192,7 +1192,7 @@
 
   function calculateWeeklySummary() {
     // --- Weekly Summary for "Resumo da Semana" (entire week) ---
-    let totalBrutoSemana = 0; // Only services (excluding Assinatura/Cartão Presente), products, and plan sales
+    let totalBrutoSemana = 0; // Will include all services now
     let comissaoServicosSemana = 0; // Services only, with deductions
     let comissaoAssinaturasSemana = 0;
     let comissaoCartaoPresenteSemana = 0;
@@ -1200,26 +1200,19 @@
     let totalProdutosVendidosSemana = 0; // Total quantity of products sold for commission
 
     // --- Daily Details for "Detalhes do Faturamento Diário" (selected day only) ---
-    // These will now sum all payment methods regardless of source (service, product, plan sale)
-    let detalheAssinaturasDia = 0; // This will now represent total value of "Assinatura" plan sales for the day
-    let detalheCartaoPresenteDia = 0; // This will now represent total value of "Cartão Presente" plan sales for the day
+    let detalheAssinaturasDia = 0;
+    let detalheCartaoPresenteDia = 0;
     let detalheDinheiroDia = 0;
     let detalhePixDia = 0;
     let detalheDebitoDia = 0;
     let detalheCreditoDia = 0;
-    let detalheTotalProdutosDia = 0; // Total quantity of products for the day
+    let detalheTotalProdutosDia = 0;
 
-    // Get transactions for the currently selected day
     const dayDataForSelectedDay = weeklyData[weekDays[selectedDay]] || { transactions: [], vale: 0 };
     const transactionsForSelectedDay = dayDataForSelectedDay.transactions || [];
 
-    // Calculate details for the selected day
     transactionsForSelectedDay.forEach(t => {
-        // Products quantity for daily details
         detalheTotalProdutosDia += t.products || 0;
-
-        // Accumulate for daily details by payment method (services AND products AND plan sales)
-        // Services
         if (t.serviceDescription && t.value > 0) {
             switch (t.paymentMethod) {
                 case 'Dinheiro': detalheDinheiroDia += t.value; break;
@@ -1228,7 +1221,6 @@
                 case 'Crédito': detalheCreditoDia += t.value; break;
             }
         }
-        // Products
         if (t.productDescription && t.products > 0 && t.productSaleValue > 0) {
             switch (t.productPaymentMethod) {
                 case 'Dinheiro': detalheDinheiroDia += t.productSaleValue; break;
@@ -1237,7 +1229,6 @@
                 case 'Crédito': detalheCreditoDia += t.productSaleValue; break;
             }
         }
-        // Plan Sales
         if (t.planSaleType && t.planSaleValue > 0) {
             switch (t.planSalePaymentMethod) {
                 case 'Dinheiro': detalheDinheiroDia += t.planSaleValue; break;
@@ -1245,7 +1236,6 @@
                 case 'Débito': detalheDebitoDia += t.planSaleValue; break;
                 case 'Crédito': detalheCreditoDia += t.planSaleValue; break;
             }
-            // Add to specific Assinaturas/Cartão Presente totals if they are plan sales
             if (t.planSaleType === 'Assinatura') {
                 detalheAssinaturasDia += t.planSaleValue;
             } else if (t.planSaleType === 'Cartão Presente') {
@@ -1254,49 +1244,38 @@
         }
     });
 
-
     // Calculate overall weekly summary (for "Resumo da Semana" section)
     Object.values(weeklyData).forEach(dayData => {
       const transactions = dayData.transactions || [];
       transactions.forEach(t => {
-        // Products quantity for commission (from both service-associated products and standalone product sales)
         totalProdutosVendidosSemana += t.products || 0;
 
         // Calculate commissions and total bruto for services
         if (t.serviceDescription && t.value > 0) {
-          // Only add service value to total bruto if it's a real payment method
-          if (t.paymentMethod !== 'Assinatura' && t.paymentMethod !== 'Cartão Presente') {
-            totalBrutoSemana += t.value; 
-          }
+          // *** ALTERAÇÃO: Agora, todos os serviços, independente da forma de pagamento, são somados ao Faturamento Bruto. ***
+          totalBrutoSemana += t.value; 
+
+          // Lógica de comissão continua separada e correta
           if (t.paymentMethod === 'Assinatura') {
             comissaoAssinaturasSemana += t.value * 0.50;
           } else if (t.paymentMethod === 'Cartão Presente') {
             comissaoCartaoPresenteSemana += t.value * 0.50;
-          } else { // Real payments for services
+          } else { // Pagamentos reais por serviços
             let commissionableValue = t.value;
             if (t.paymentMethod === 'Débito') commissionableValue *= (1 - 0.015);
             else if (t.paymentMethod === 'Crédito') commissionableValue *= (1 - 0.05);
             comissaoServicosSemana += commissionableValue * 0.50;
           }
         }
-        // ALTERAÇÃO: Vendas de produtos não são mais somadas ao Faturamento Bruto do barbeiro.
-        if (t.productDescription && t.products > 0 && t.productSaleValue > 0 && t.productPaymentMethod) {
-            // totalBrutoSemana += t.productSaleValue; // REMOVIDO
-        }
-
-        // ALTERAÇÃO: Vendas de planos/assinaturas não são mais somadas ao Faturamento Bruto do barbeiro.
-        if (t.planSaleType && t.planSaleValue > 0 && t.planSalePaymentMethod) {
-            // totalBrutoSemana += t.planSaleValue; // REMOVIDO
-        }
+        // Vendas de produtos e planos continuam NÃO sendo somadas ao Faturamento Bruto do barbeiro.
       });
       totalValeSemana += dayData.vale || 0;
     });
 
-    const comissaoProdutosSemana = totalProdutosVendidosSemana * 5; // R$5.00 per product quantity
+    const comissaoProdutosSemana = totalProdutosVendidosSemana * 5;
     const subtotalComissaoSemana = comissaoServicosSemana + comissaoAssinaturasSemana + comissaoCartaoPresenteSemana + comissaoProdutosSemana;
     const comissaoFinalSemana = subtotalComissaoSemana - totalValeSemana;
 
-    // Update "Resumo da Semana" UI
     summarySpans.faturamentoBruto.textContent = formatCurrency(totalBrutoSemana);
     summarySpans.comissaoServicos.textContent = formatCurrency(comissaoServicosSemana);
     summarySpans.comissaoProdutos.textContent = formatCurrency(comissaoProdutosSemana);
@@ -1306,7 +1285,6 @@
     summarySpans.descontoVale.textContent = `- ${formatCurrency(totalValeSemana)}`;
     summarySpans.comissaoFinal.textContent = formatCurrency(comissaoFinalSemana);
 
-    // Update "Detalhes do Faturamento Diário" UI
     detalheAssinaturas.textContent = formatCurrency(detalheAssinaturasDia);
     detalheCartaoPresente.textContent = formatCurrency(detalheCartaoPresenteDia);
     detalheDinheiro.textContent = formatCurrency(detalheDinheiroDia);
@@ -1623,48 +1601,37 @@
     }
 
     let totalBruto = 0, comissaoServicos = 0, totalVale = 0, totalProdutos = 0;
-    let comissaoAssinaturasVal = 0; // NEW
-    let comissaoCartaoPresenteVal = 0; // NEW
+    let comissaoAssinaturasVal = 0;
+    let comissaoCartaoPresenteVal = 0;
 
     Object.values(weeklyData).forEach(dayData => {
       const transactions = dayData.transactions || [];
       transactions.forEach(t => {
-        // Products quantity for commission (from both service-associated products and standalone product sales)
         totalProdutos += t.products || 0;
 
         // Calculate commissions and total bruto for services
         if (t.serviceDescription && t.value > 0) {
-          // Only add service value to total bruto if it's a real payment method
-          if (t.paymentMethod !== 'Assinatura' && t.paymentMethod !== 'Cartão Presente') {
-            totalBruto += t.value; 
-          }
+           // *** ALTERAÇÃO: Agora, todos os serviços, independente da forma de pagamento, são somados ao Faturamento Bruto final. ***
+          totalBruto += t.value; 
+
+          // Lógica de comissão continua separada e correta
           if (t.paymentMethod === 'Assinatura') {
-            comissaoAssinaturasVal += t.value * 0.50; // 50% commission for subscriptions
+            comissaoAssinaturasVal += t.value * 0.50;
           } else if (t.paymentMethod === 'Cartão Presente') {
-            comissaoCartaoPresenteVal += t.value * 0.50; // 50% commission for gift cards
-          } else { // Real payments for services
+            comissaoCartaoPresenteVal += t.value * 0.50;
+          } else {
             let commissionableValue = t.value;
             if (t.paymentMethod === 'Débito') commissionableValue *= (1 - 0.015);
             else if (t.paymentMethod === 'Crédito') commissionableValue *= (1 - 0.05);
-            comissaoServicos += commissionableValue * 0.50; // 50% commission on services (after deductions)
+            comissaoServicos += commissionableValue * 0.50;
           }
         }
-
-        // ALTERAÇÃO: Venda de produtos não é mais somada ao faturamento bruto final.
-        if (t.productDescription && t.products > 0 && t.productSaleValue > 0 && t.productPaymentMethod) {
-            // totalBruto += t.productSaleValue; // REMOVIDO
-        }
-
-        // ALTERAÇÃO: Venda de planos não é mais somada ao faturamento bruto final.
-        if (t.planSaleType && t.planSaleValue > 0 && t.planSalePaymentMethod) {
-            // totalBruto += t.planSaleValue; // REMOVIDO
-        }
+        // Vendas de produtos e planos continuam NÃO sendo somadas ao Faturamento Bruto do barbeiro.
       });
       totalVale += dayData.vale || 0;
     });
 
     const comissaoProdutos = totalProdutos * 5;
-    // NEW: Subtotal Comissão now includes all commission types
     const subtotalComissao = comissaoServicos + comissaoAssinaturasVal + comissaoCartaoPresenteVal + comissaoProdutos;
     const comissaoFinal = subtotalComissao - totalVale;
 
@@ -1683,7 +1650,7 @@
         totalVale,
         comissaoPaga: comissaoFinal,
         closedAt: serverTimestamp(),
-        details: weeklyData // Store a snapshot of the week's data
+        details: weeklyData 
       });
 
       const weekDocRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);

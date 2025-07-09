@@ -940,7 +940,7 @@
         newTransaction = {
             id: crypto.randomUUID(),
             clientNamePlan: clientNamePlan, // Store client name specifically for plan sales
-            planDescription: planDescription, // Still keep description as optional
+            // planDescription: planDescription, // Removed as it's no longer an input
             planSaleValue: planSaleValue,
             planSaleType: planSaleType,
             planSalePaymentMethod: planSalePaymentMethod
@@ -970,7 +970,7 @@
     transactionForm.productSaleValue.value = '';
     transactionForm.productPaymentMethod.value = '';
     transactionForm.clientNamePlan.value = ''; // Clear new client name field
-    transactionForm.planDescription.value = ''; // Clear plan description
+    // transactionForm.planDescription.value = ''; // Removed
     transactionForm.planSaleValue.value = '';
     transactionForm.planSaleType.value = '';
     transactionForm.planSalePaymentMethod.value = '';
@@ -1028,7 +1028,7 @@
 
     // Populate plan sale fields
     editTransactionForm.clientNamePlan.value = transaction.clientNamePlan || ''; // NEW
-    editTransactionForm.planDescription.value = transaction.planDescription || '';
+    // editTransactionForm.planDescription.value = transaction.planDescription || ''; // Removed
     editTransactionForm.planSaleValue.value = transaction.planSaleValue || '';
     editTransactionForm.planSaleType.value = transaction.planSaleType || '';
     editTransactionForm.planSalePaymentMethod.value = transaction.planSalePaymentMethod || '';
@@ -1121,7 +1121,7 @@
         updatedTransaction = {
             id: currentEditingTransactionId, // Keep original ID
             clientNamePlan: clientNamePlan, // Store client name specifically for plan sales
-            planDescription: planDescription, // Still keep description as optional
+            // planDescription: planDescription, // Removed
             planSaleValue: planSaleValue,
             planSaleType: planSaleType,
             planSalePaymentMethod: planSalePaymentMethod

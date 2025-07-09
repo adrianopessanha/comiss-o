@@ -92,8 +92,8 @@
             <p class="flex justify-between"><span>Crédito:</span> <span id="reportFaturamentoDiarioCredito" class="font-semibold text-teal-400">R$ 0,00</span></p>
             <hr class="border-gray-600"/>
             <p class="flex justify-between items-center pt-2">
-                <span class="font-medium text-gray-300">Total:</span>
-                <span id="reportFaturamentoDiarioTotal" class="text-xl font-bold text-teal-400">R$ 0,00</span>
+              <span class="font-medium text-gray-300">Total:</span>
+              <span id="reportFaturamentoDiarioTotal" class="text-xl font-bold text-teal-400">R$ 0,00</span>
             </p>
           </div>
         </div>
@@ -474,13 +474,13 @@
   const weekDays = { 2: 'Terça', 3: 'Quarta', 4: 'Quinta', 5: 'Sexta', 6: 'Sábado' };
 
   let loginScreen, appContainer, barberSelector, mainContent, historySection, daySelector, addTransactionBtn, saveValeBtn, valeInput,
-      dailyLog, dailyLogPlaceholder, transactionForm, editModal, closeEditModalBtn, saveEditBtn,
-      editTransactionForm, closeWeekBtn, currentWeekSpan, historyTableBody, historyPlaceholder, summarySpans,
-      adminSelectorContainer, welcomeMessage, loginBtn, emailInput, passwordInput, adminReportSection, adminReportSpans,
-      detalheAssinaturas, detalheCartaoPresente, detalheDinheiro, detalhePix, detalheDebito, detalheCredito, detalheTotalProdutos,
-      barberDetailsSection, reportComissaoAssinaturasCartao, barberRankingList,
-      loja01DailyDinheiro, loja01DailyPix, loja01DailyDebito, loja01DailyCredito, loja01WeeklyTotal,
-      loja02DailyDinheiro, loja02DailyPix, loja02DailyDebito, loja02DailyCredito, loja02WeeklyTotal; // New store-specific DOM references
+        dailyLog, dailyLogPlaceholder, transactionForm, editModal, closeEditModalBtn, saveEditBtn,
+        editTransactionForm, closeWeekBtn, currentWeekSpan, historyTableBody, historyPlaceholder, summarySpans,
+        adminSelectorContainer, welcomeMessage, loginBtn, emailInput, passwordInput, adminReportSection, adminReportSpans,
+        detalheAssinaturas, detalheCartaoPresente, detalheDinheiro, detalhePix, detalheDebito, detalheCredito, detalheTotalProdutos,
+        barberDetailsSection, reportComissaoAssinaturasCartao, barberRankingList,
+        loja01DailyDinheiro, loja01DailyPix, loja01DailyDebito, loja01DailyCredito, loja01WeeklyTotal,
+        loja02DailyDinheiro, loja02DailyPix, loja02DailyDebito, loja02DailyCredito, loja02WeeklyTotal; // New store-specific DOM references
 
   let comissaoAssinaturas, comissaoCartaoPresente; // Commission elements for barber summary
 
@@ -528,9 +528,9 @@
         productSaleValue: document.getElementById('productSaleValue'),
         productPaymentMethod: document.getElementById('productPaymentMethod'),
         clientNamePlan: document.getElementById('clientNamePlan'), // NEW: Renamed from planDescription
-        planSaleValue: document.getElementById('planSaleValue'),     
-        planSaleType: document.getElementById('planSaleType'),       
-        planSalePaymentMethod: document.getElementById('planSalePaymentMethod') 
+        planSaleValue: document.getElementById('planSaleValue'),      
+        planSaleType: document.getElementById('planSaleType'),        
+        planSalePaymentMethod: document.getElementById('planSalePaymentMethod')  
     };
     editModal = document.getElementById('edit-modal');
     closeEditModalBtn = document.getElementById('close-edit-modal-btn');
@@ -546,9 +546,9 @@
         productSaleValue: document.getElementById('editProductSaleValue'),
         productPaymentMethod: document.getElementById('editProductPaymentMethod'),
         clientNamePlan: document.getElementById('editClientNamePlan'), // NEW: Renamed from editPlanDescription
-        planSaleValue: document.getElementById('editPlanSaleValue'),     
-        planSaleType: document.getElementById('editPlanSaleType'),       
-        planSalePaymentMethod: document.getElementById('editPlanSalePaymentMethod') 
+        planSaleValue: document.getElementById('editPlanSaleValue'),      
+        planSaleType: document.getElementById('editPlanSaleType'),        
+        planSalePaymentMethod: document.getElementById('editPlanSalePaymentMethod')  
     };
     closeWeekBtn = document.getElementById('closeWeekBtn');
     currentWeekSpan = document.getElementById('currentWeek');
@@ -977,6 +977,18 @@
   }
 
   async function deleteTransaction(transactionId, transactionDayIndex) {
+    // Allow admin to delete any transaction
+    if (loggedInUser.role === 'admin') {
+        if (!confirm("Tem certeza que deseja apagar este lançamento?")) return;
+        const dayKey = weekDays[transactionDayIndex];
+        const updatedData = JSON.parse(JSON.stringify(weeklyData));
+        if (updatedData[dayKey] && updatedData[dayKey].transactions) {
+            updatedData[dayKey].transactions = updatedData[dayKey].transactions.filter(t => t.id !== transactionId);
+            await updateFirestoreData(updatedData);
+        }
+        return; // Exit function after admin deletion
+    }
+
     const currentDayIndex = new Date().getDay();
 
     // Check for Rodrigo's specific permissions
@@ -1252,32 +1264,36 @@
     Object.values(weeklyData).forEach(dayData => {
       const transactions = dayData.transactions || [];
       transactions.forEach(t => {
-        // Services
+        // Products quantity for commission (from both service-associated products and standalone product sales)
+        totalProdutosVendidosSemana += t.products || 0;
+
+        // Calculate commissions and total bruto for services
         if (t.serviceDescription && t.value > 0) {
-            totalProdutosVendidosSemana += t.products || 0; // Products associated with services count for commission
-            totalBrutoSemana += t.value; // Add service value to total bruto
-            if (t.paymentMethod === 'Assinatura') {
-                comissaoAssinaturasSemana += t.value * 0.50;
-            } else if (t.paymentMethod === 'Cartão Presente') {
-                comissaoCartaoPresenteSemana += t.value * 0.50;
-            } else { // Real payments for services
-                let commissionableValue = t.value;
-                if (t.paymentMethod === 'Débito') commissionableValue *= (1 - 0.015);
-                else if (t.paymentMethod === 'Crédito') commissionableValue *= (1 - 0.05);
-                comissaoServicosSemana += commissionableValue * 0.50;
-            }
+          // Only add service value to total bruto if it's a real payment method
+          if (t.paymentMethod !== 'Assinatura' && t.paymentMethod !== 'Cartão Presente') {
+            totalBrutoSemana += t.value; 
+          }
+          if (t.paymentMethod === 'Assinatura') {
+            comissaoAssinaturasSemana += t.value * 0.50;
+          } else if (t.paymentMethod === 'Cartão Presente') {
+            comissaoCartaoPresenteSemana += t.value * 0.50;
+          } else { // Real payments for services
+            let commissionableValue = t.value;
+            if (t.paymentMethod === 'Débito') commissionableValue *= (1 - 0.015);
+            else if (t.paymentMethod === 'Crédito') commissionableValue *= (1 - 0.05);
+            comissaoServicosSemana += commissionableValue * 0.50;
+          }
         }
 
-        // Products
+        // Products are still included in totalBrutoSemana
         if (t.productDescription && t.products > 0 && t.productSaleValue > 0 && t.productPaymentMethod) {
-            totalProdutosVendidosSemana += t.products; // Products from product sales also count for commission
-            totalBrutoSemana += t.productSaleValue; // Add product sale value to total bruto
+            totalProdutosVendidosSemana += t.products;
+            totalBrutoSemana += t.productSaleValue;
         }
 
-        // Plan Sales (these do NOT generate commission for the barber)
+        // Plan Sales are still included in totalBrutoSemana
         if (t.planSaleType && t.planSaleValue > 0 && t.planSalePaymentMethod) {
-            totalBrutoSemana += t.planSaleValue; // Add plan sale value to total bruto
-            // No commission added for plan sales here
+            totalBrutoSemana += t.planSaleValue;
         }
       });
       totalValeSemana += dayData.vale || 0;
@@ -1392,7 +1408,9 @@
                 barberWeeklyRevenue[barberId] = 0;
             }
 
-            for (const dayKey in weeklyTransactionsByDay) {
+            // Iterate through the defined weekDays to ensure only Tuesday-Saturday are considered for weekly totals
+            for (const dayIndexStr in weekDays) { 
+                const dayKey = weekDays[dayIndexStr]; // e.g., 'Terça', 'Quarta'
                 const dayData = weeklyTransactionsByDay[dayKey] || {};
                 const transactions = dayData.transactions || [];
 
@@ -1412,11 +1430,11 @@
                     if (t.serviceDescription && t.value > 0) { // Check if it's a service transaction
                         // Only add service value to overall Faturamento Bruto Total if it's a real payment method
                         if (t.paymentMethod !== 'Assinatura' && t.paymentMethod !== 'Cartão Presente') {
-                            totals.faturamentoTotalCurrentWeek += t.value; 
+                            totals.faturamentoTotalCurrentWeek += t.value;  
                         }
                         barberWeeklyRevenue[barberId] += t.value; // Service value always counts for barber ranking
 
-                        if (weekDays[currentDayOfWeek] === dayKey) {
+                        if (weekDays[currentDayOfWeek] === dayKey) { // This is for TODAY's daily totals
                             switch (t.paymentMethod) {
                                 case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.value; break;
                                 case 'Pix': totals.faturamentoDiarioPix += t.value; break;
@@ -1434,15 +1452,18 @@
                                 switch (t.paymentMethod) {
                                     case 'Dinheiro': totals.loja02DailyDinheiro += t.value; break;
                                     case 'Pix': totals.loja02DailyPix += t.value; break;
-                                    case 'Débito': totals.lo2DailyDebito += t.value; break;
+                                    case 'Débito': totals.loja02DailyDebito += t.value; break; 
                                     case 'Crédito': totals.loja02DailyCredito += t.value; break;
                                 }
                             }
                         }
-                        if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.value;
-                        else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.value;
+                        // Only add service value to store weekly totals if payment method is not Assinatura or Cartão Presente
+                        if (t.paymentMethod !== 'Assinatura' && t.paymentMethod !== 'Cartão Presente') {
+                            if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.value;
+                            else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.value;
+                        }
 
-                        switch (t.paymentMethod) {
+                        switch (t.paymentMethod) { // These are overall weekly totals for the admin report
                             case 'Dinheiro': totals.dinheiro += t.value; break;
                             case 'Pix': totals.pix += t.value; break;
                             case 'Débito': totals.debito += t.value; break;
@@ -1455,7 +1476,7 @@
                         totals.faturamentoTotalCurrentWeek += t.productSaleValue; // Overall weekly faturamento (product value)
                         barberWeeklyRevenue[barberId] += t.productSaleValue; // Product sales count for barber ranking
 
-                        if (weekDays[currentDayOfWeek] === dayKey) {
+                        if (weekDays[currentDayOfWeek] === dayKey) { // This is for TODAY's daily totals
                             switch (t.productPaymentMethod) {
                                 case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.productSaleValue; break;
                                 case 'Pix': totals.faturamentoDiarioPix += t.productSaleValue; break;
@@ -1473,15 +1494,16 @@
                                 switch (t.productPaymentMethod) {
                                     case 'Dinheiro': totals.loja02DailyDinheiro += t.productSaleValue; break;
                                     case 'Pix': totals.loja02DailyPix += t.productSaleValue; break;
-                                    case 'Débito': totals.lo2DailyDebito += t.productSaleValue; break;
+                                    case 'Débito': totals.loja02DailyDebito += t.productSaleValue; break; 
                                     case 'Crédito': totals.loja02DailyCredito += t.productSaleValue; break;
                                 }
                             }
                         }
+                        // This is the part for weekly totals for each store (summing all transactions for the week)
                         if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.productSaleValue;
                         else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.productSaleValue;
 
-                        switch (t.productPaymentMethod) {
+                        switch (t.productPaymentMethod) { // These are overall weekly totals for the admin report
                             case 'Dinheiro': totals.dinheiro += t.productSaleValue; break;
                             case 'Pix': totals.pix += t.productSaleValue; break;
                             case 'Débito': totals.debito += t.productSaleValue; break;
@@ -1494,7 +1516,7 @@
                         totals.faturamentoTotalCurrentWeek += t.planSaleValue; // Overall weekly faturamento (plan sale value)
                         // Do NOT add to barberWeeklyRevenue
 
-                        if (weekDays[currentDayOfWeek] === dayKey) {
+                        if (weekDays[currentDayOfWeek] === dayKey) { // This is for TODAY's daily totals
                             switch (t.planSalePaymentMethod) {
                                 case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.planSaleValue; break;
                                 case 'Pix': totals.faturamentoDiarioPix += t.planSaleValue; break;
@@ -1512,15 +1534,16 @@
                                 switch (t.planSalePaymentMethod) {
                                     case 'Dinheiro': totals.loja02DailyDinheiro += t.planSaleValue; break;
                                     case 'Pix': totals.loja02DailyPix += t.planSaleValue; break;
-                                    case 'Débito': totals.lo2DailyDebito += t.planSaleValue; break;
+                                    case 'Débito': totals.loja02DailyDebito += t.planSaleValue; break; 
                                     case 'Crédito': totals.loja02DailyCredito += t.planSaleValue; break;
                                 }
                             }
                         }
+                        // This is the part for weekly totals for each store (summing all transactions for the week)
                         if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.planSaleValue;
                         else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.planSaleValue;
 
-                        switch (t.planSalePaymentMethod) {
+                        switch (t.planSalePaymentMethod) { // These are overall weekly totals for the admin report
                             case 'Dinheiro': totals.dinheiro += t.planSaleValue; break;
                             case 'Pix': totals.pix += t.planSaleValue; break;
                             case 'Débito': totals.debito += t.planSaleValue; break;
@@ -1618,7 +1641,10 @@
 
         // Calculate commissions and total bruto for services
         if (t.serviceDescription && t.value > 0) {
-          totalBruto += t.value; // Add service value to total bruto
+          // Only add service value to total bruto if it's a real payment method
+          if (t.paymentMethod !== 'Assinatura' && t.paymentMethod !== 'Cartão Presente') {
+            totalBruto += t.value; 
+          }
           if (t.paymentMethod === 'Assinatura') {
             comissaoAssinaturasVal += t.value * 0.50; // 50% commission for subscriptions
           } else if (t.paymentMethod === 'Cartão Presente') {

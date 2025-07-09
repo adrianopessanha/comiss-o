@@ -178,6 +178,9 @@
                         <option value="Cartão Presente">Cartão Presente</option>
                     </select>
                 </div>
+                <button id="addServiceTransactionBtn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Adicionar Serviço
+                </button>
             </div>
 
             <!-- Product Details -->
@@ -195,6 +198,9 @@
                     <option value="Débito">Débito</option>
                     <option value="Crédito">Crédito</option>
                 </select>
+                <button id="addProductTransactionBtn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Adicionar Produto
+                </button>
             </div>
 
             <!-- NEW: Plan/Gift Card Sale Details -->
@@ -216,11 +222,11 @@
                     <option value="Débito">Débito</option>
                     <option value="Crédito">Crédito</option>
                 </select>
+                <button id="addPlanTransactionBtn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Adicionar Plano/Vale
+                </button>
             </div>
-
-            <button id="addTransactionBtn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center gap-2">
-              <i class="fa-solid fa-plus"></i> Adicionar Lançamento
-            </button>
+            <!-- Removed the original single addTransactionBtn -->
           </div>
 
           <div class="mt-6">
@@ -473,7 +479,7 @@
 
   const weekDays = { 2: 'Terça', 3: 'Quarta', 4: 'Quinta', 5: 'Sexta', 6: 'Sábado' };
 
-  let loginScreen, appContainer, barberSelector, mainContent, historySection, daySelector, addTransactionBtn, saveValeBtn, valeInput,
+  let loginScreen, appContainer, barberSelector, mainContent, historySection, daySelector, addServiceTransactionBtn, addProductTransactionBtn, addPlanTransactionBtn, saveValeBtn, valeInput, // Updated addTransactionBtn to specific names
         dailyLog, dailyLogPlaceholder, transactionForm, editModal, closeEditModalBtn, saveEditBtn,
         editTransactionForm, closeWeekBtn, currentWeekSpan, historyTableBody, historyPlaceholder, summarySpans,
         adminSelectorContainer, welcomeMessage, loginBtn, emailInput, passwordInput, adminReportSection, adminReportSpans,
@@ -512,7 +518,9 @@
     mainContent = document.getElementById('main-content');
     historySection = document.getElementById('history-section');
     daySelector = document.getElementById('day-selector');
-    addTransactionBtn = document.getElementById('addTransactionBtn');
+    addServiceTransactionBtn = document.getElementById('addServiceTransactionBtn'); // Get reference to new service button
+    addProductTransactionBtn = document.getElementById('addProductTransactionBtn'); // Get reference to new product button
+    addPlanTransactionBtn = document.getElementById('addPlanTransactionBtn'); // Get reference to new plan button
     saveValeBtn = document.getElementById('saveValeBtn');
     valeInput = document.getElementById('vale');
     dailyLog = document.getElementById('daily-log');
@@ -742,7 +750,10 @@
 
     currentWeekSpan.textContent = `Semana: ${weekStartDate.toLocaleDateString('pt-BR')} - ${weekEndDate.toLocaleDateString('pt-BR')}`;
 
-    addTransactionBtn.addEventListener('click', addTransaction);
+    addServiceTransactionBtn.addEventListener('click', () => addTransaction('service')); // Pass type 'service'
+    addProductTransactionBtn.addEventListener('click', () => addTransaction('product')); // Pass type 'product'
+    addPlanTransactionBtn.addEventListener('click', () => addTransaction('plan')); // Pass type 'plan'
+
     saveValeBtn.addEventListener('click', saveVale);
     closeWeekBtn.addEventListener('click', closeWeek);
     closeEditModalBtn.addEventListener('click', () => {
@@ -857,29 +868,8 @@
     }
   }
 
-  async function addTransaction() {
-    const serviceDescription = transactionForm.serviceDescription.value.trim();
-    const serviceValue = parseFloat(transactionForm.serviceValue.value) || 0;
-    const paymentMethod = transactionForm.paymentMethod.value;
-
-    const productDescription = transactionForm.productDescription.value.trim();
-    const productsSold = parseInt(transactionForm.productsSold.value) || 0;
-    const productSaleValue = parseFloat(transactionForm.productSaleValue.value) || 0;
-    const productPaymentMethod = transactionForm.productPaymentMethod.value;
-
-    const clientNamePlan = transactionForm.clientNamePlan.value.trim(); // NEW
-    const planSaleValue = parseFloat(transactionForm.planSaleValue.value) || 0;
-    const planSaleType = transactionForm.planSaleType.value;
-    const planSalePaymentMethod = transactionForm.planSalePaymentMethod.value;
-
-    const clientName = transactionForm.clientName.value.trim(); // General client name for services/products
-
-    // Determine transaction type and validate
+  async function addTransaction(type) { // Added type parameter
     let newTransaction = null;
-
-    const isServiceEntry = serviceDescription && serviceValue > 0;
-    const isProductEntry = productDescription && productsSold > 0 && productSaleValue > 0 && productPaymentMethod;
-    const isPlanSaleEntry = clientNamePlan && planSaleValue > 0 && planSaleType && planSalePaymentMethod; // clientNamePlan is now required
 
     // Prevent Rodrigo from adding transactions for other barbers
     if (loggedInUser.barberId === 'barber-02' && (selectedBarberId === 'barber-03' || selectedBarberId === 'barber-06')) {
@@ -887,24 +877,14 @@
         return;
     }
 
-    // Validation: Only one type of entry at a time
-    if ((isServiceEntry || isProductEntry) && isPlanSaleEntry) {
-        alert("Não é possível registrar serviço/produto e venda de plano/vale na mesma transação. Por favor, registre separadamente.");
-        return;
-    }
+    if (type === 'service') {
+        const serviceDescription = transactionForm.serviceDescription.value.trim();
+        const serviceValue = parseFloat(transactionForm.serviceValue.value) || 0;
+        const paymentMethod = transactionForm.paymentMethod.value;
+        const clientName = transactionForm.clientName.value.trim();
 
-    if (isServiceEntry || isProductEntry) {
-        if (isServiceEntry && !paymentMethod) {
-            alert("Por favor, selecione a forma de pagamento para o serviço.");
-            return;
-        }
-        if (isProductEntry && (!productPaymentMethod || productSaleValue <= 0)) {
-             alert("Por favor, preencha o valor total e a forma de pagamento para os produtos.");
-             return;
-        }
-        // If no service or product details, but clientName is filled, prompt for service/product details
-        if (!isServiceEntry && !isProductEntry && clientName) {
-            alert("Por favor, preencha os detalhes do serviço ou produto para o cliente.");
+        if (!serviceDescription || serviceValue <= 0 || !paymentMethod) {
+            alert("Por favor, preencha a descrição, o valor e a forma de pagamento do serviço.");
             return;
         }
 
@@ -914,39 +894,71 @@
             serviceDescription: serviceDescription,
             value: serviceValue,
             paymentMethod: paymentMethod,
-            productDescription: productDescription,
-            products: productsSold,
-            productSaleValue: productSaleValue,
-            productPaymentMethod: productPaymentMethod
+            // Ensure product and plan fields are explicitly undefined or empty for service transactions
+            productDescription: '', products: 0, productSaleValue: 0, productPaymentMethod: '',
+            clientNamePlan: '', planSaleValue: 0, planSaleType: '', planSalePaymentMethod: ''
         };
-    } else if (isPlanSaleEntry) {
-        if (!clientNamePlan) { // This is now explicitly required for plan sales
-            alert("Por favor, preencha o nome do cliente para a venda do plano/vale.");
-            return;
-        }
-        if (planSaleValue <= 0) {
-            alert("Por favor, preencha um valor total válido para a venda do plano/vale.");
-            return;
-        }
-        if (!planSaleType) {
-            alert("Por favor, selecione o tipo de venda (Assinatura/Cartão Presente).");
-            return;
-        }
-        if (!planSalePaymentMethod) {
-            alert("Por favor, selecione a forma de pagamento para a venda do plano/vale.");
+        // Clear service fields
+        transactionForm.clientName.value = '';
+        transactionForm.serviceDescription.value = '';
+        transactionForm.serviceValue.value = '';
+        transactionForm.paymentMethod.value = 'Dinheiro';
+
+    } else if (type === 'product') {
+        const productDescription = transactionForm.productDescription.value.trim();
+        const productsSold = parseInt(transactionForm.productsSold.value) || 0;
+        const productSaleValue = parseFloat(transactionForm.productSaleValue.value) || 0;
+        const productPaymentMethod = transactionForm.productPaymentMethod.value;
+
+        if (!productDescription || productsSold <= 0 || productSaleValue <= 0 || !productPaymentMethod) {
+            alert("Por favor, preencha a descrição, quantidade, valor total e forma de pagamento dos produtos.");
             return;
         }
 
         newTransaction = {
             id: crypto.randomUUID(),
-            clientNamePlan: clientNamePlan, // Store client name specifically for plan sales
-            // planDescription: planDescription, // Removed as it's no longer an input
+            productDescription: productDescription,
+            products: productsSold,
+            productSaleValue: productSaleValue,
+            productPaymentMethod: productPaymentMethod,
+            // Ensure service and plan fields are explicitly undefined or empty for product transactions
+            clientName: '', serviceDescription: '', value: 0, paymentMethod: '',
+            clientNamePlan: '', planSaleValue: 0, planSaleType: '', planSalePaymentMethod: ''
+        };
+        // Clear product fields
+        transactionForm.productDescription.value = '';
+        transactionForm.productsSold.value = '';
+        transactionForm.productSaleValue.value = '';
+        transactionForm.productPaymentMethod.value = '';
+
+    } else if (type === 'plan') {
+        const clientNamePlan = transactionForm.clientNamePlan.value.trim();
+        const planSaleValue = parseFloat(transactionForm.planSaleValue.value) || 0;
+        const planSaleType = transactionForm.planSaleType.value;
+        const planSalePaymentMethod = transactionForm.planSalePaymentMethod.value;
+
+        if (!clientNamePlan || planSaleValue <= 0 || !planSaleType || !planSalePaymentMethod) {
+            alert("Por favor, preencha o nome do cliente, o valor, o tipo e a forma de pagamento da venda de plano/vale.");
+            return;
+        }
+
+        newTransaction = {
+            id: crypto.randomUUID(),
+            clientNamePlan: clientNamePlan,
             planSaleValue: planSaleValue,
             planSaleType: planSaleType,
-            planSalePaymentMethod: planSalePaymentMethod
+            planSalePaymentMethod: planSalePaymentMethod,
+            // Ensure service and product fields are explicitly undefined or empty for plan transactions
+            clientName: '', serviceDescription: '', value: 0, paymentMethod: '',
+            productDescription: '', products: 0, productSaleValue: 0, productPaymentMethod: ''
         };
+        // Clear plan fields
+        transactionForm.clientNamePlan.value = '';
+        transactionForm.planSaleValue.value = '';
+        transactionForm.planSaleType.value = '';
+        transactionForm.planSalePaymentMethod.value = '';
     } else {
-        alert("Por favor, preencha os detalhes para um serviço, produto OU uma venda de plano/vale.");
+        alert("Tipo de lançamento inválido.");
         return;
     }
 
@@ -959,21 +971,6 @@
     updatedData[dayKey].transactions.push(newTransaction);
 
     await updateFirestoreData(updatedData);
-
-    // Clear form fields after adding
-    transactionForm.clientName.value = '';
-    transactionForm.serviceDescription.value = '';
-    transactionForm.serviceValue.value = '';
-    transactionForm.paymentMethod.value = 'Dinheiro';
-    transactionForm.productDescription.value = '';
-    transactionForm.productsSold.value = '';
-    transactionForm.productSaleValue.value = '';
-    transactionForm.productPaymentMethod.value = '';
-    transactionForm.clientNamePlan.value = ''; // Clear new client name field
-    // transactionForm.planDescription.value = ''; // Removed
-    transactionForm.planSaleValue.value = '';
-    transactionForm.planSaleType.value = '';
-    transactionForm.planSalePaymentMethod.value = '';
   }
 
   async function deleteTransaction(transactionId, transactionDayIndex) {
@@ -1195,7 +1192,7 @@
 
   function calculateWeeklySummary() {
     // --- Weekly Summary for "Resumo da Semana" (entire week) ---
-    let totalBrutoSemana = 0; // All payments (services + products + subscriptions + gift cards)
+    let totalBrutoSemana = 0; // Only services (excluding Assinatura/Cartão Presente), products, and plan sales
     let comissaoServicosSemana = 0; // Services only, with deductions
     let comissaoAssinaturasSemana = 0;
     let comissaoCartaoPresenteSemana = 0;
@@ -1225,8 +1222,6 @@
         // Services
         if (t.serviceDescription && t.value > 0) {
             switch (t.paymentMethod) {
-                // case 'Assinatura': detalheAssinaturasDia += t.value; break; // Removed from here
-                // case 'Cartão Presente': detalheCartaoPresenteDia += t.value; break; // Removed from here
                 case 'Dinheiro': detalheDinheiroDia += t.value; break;
                 case 'Pix': detalhePixDia += t.value; break;
                 case 'Débito': detalheDebitoDia += t.value; break;
@@ -1284,7 +1279,6 @@
             comissaoServicosSemana += commissionableValue * 0.50;
           }
         }
-
         // Products are still included in totalBrutoSemana
         if (t.productDescription && t.products > 0 && t.productSaleValue > 0 && t.productPaymentMethod) {
             totalProdutosVendidosSemana += t.products;

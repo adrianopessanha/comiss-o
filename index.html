@@ -358,7 +358,7 @@
   <div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-lg mx-4 border border-gray-600">
     <div class="flex justify-between items-center mb-4">
       <h3 class="font-semibold text-lg">Editar Lançamento</h3>
-      <button id="close-edit-modal-btn" class="text-gray-400 hover:text-white">&times;</button>
+      <button id="close-edit-modal-btn" class="text-gray-400 hover:text-white">×</button>
     </div>
     <div id="edit-transaction-form" class="space-y-4">
         <!-- Edit Service Details -->
@@ -1279,15 +1279,14 @@
             comissaoServicosSemana += commissionableValue * 0.50;
           }
         }
-        // Products are still included in totalBrutoSemana
+        // ALTERAÇÃO: Vendas de produtos não são mais somadas ao Faturamento Bruto do barbeiro.
         if (t.productDescription && t.products > 0 && t.productSaleValue > 0 && t.productPaymentMethod) {
-            totalProdutosVendidosSemana += t.products;
-            totalBrutoSemana += t.productSaleValue;
+            // totalBrutoSemana += t.productSaleValue; // REMOVIDO
         }
 
-        // Plan Sales are still included in totalBrutoSemana
+        // ALTERAÇÃO: Vendas de planos/assinaturas não são mais somadas ao Faturamento Bruto do barbeiro.
         if (t.planSaleType && t.planSaleValue > 0 && t.planSalePaymentMethod) {
-            totalBrutoSemana += t.planSaleValue;
+            // totalBrutoSemana += t.planSaleValue; // REMOVIDO
         }
       });
       totalValeSemana += dayData.vale || 0;
@@ -1651,14 +1650,14 @@
           }
         }
 
-        // Add product sale value to total bruto (from standalone product sales)
+        // ALTERAÇÃO: Venda de produtos não é mais somada ao faturamento bruto final.
         if (t.productDescription && t.products > 0 && t.productSaleValue > 0 && t.productPaymentMethod) {
-            totalBruto += t.productSaleValue;
+            // totalBruto += t.productSaleValue; // REMOVIDO
         }
 
-        // Add plan sale value to total bruto (from standalone plan sales)
+        // ALTERAÇÃO: Venda de planos não é mais somada ao faturamento bruto final.
         if (t.planSaleType && t.planSaleValue > 0 && t.planSalePaymentMethod) {
-            totalBruto += t.planSaleValue;
+            // totalBruto += t.planSaleValue; // REMOVIDO
         }
       });
       totalVale += dayData.vale || 0;

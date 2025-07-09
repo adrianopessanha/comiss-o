@@ -90,6 +90,11 @@
             <p class="flex justify-between"><span>Pix:</span> <span id="reportFaturamentoDiarioPix" class="font-semibold text-teal-400">R$ 0,00</span></p>
             <p class="flex justify-between"><span>Débito:</span> <span id="reportFaturamentoDiarioDebito" class="font-semibold text-teal-400">R$ 0,00</span></p>
             <p class="flex justify-between"><span>Crédito:</span> <span id="reportFaturamentoDiarioCredito" class="font-semibold text-teal-400">R$ 0,00</span></p>
+            <hr class="border-gray-600"/>
+            <p class="flex justify-between items-center pt-2">
+                <span class="font-medium text-gray-300">Total:</span>
+                <span id="reportFaturamentoDiarioTotal" class="text-xl font-bold text-teal-400">R$ 0,00</span>
+            </p>
           </div>
         </div>
 
@@ -109,6 +114,11 @@
                 <p class="flex justify-between"><span>Pix:</span> <span id="loja01DailyPix" class="font-semibold text-blue-400">R$ 0,00</span></p>
                 <p class="flex justify-between"><span>Débito:</span> <span id="loja01DailyDebito" class="font-semibold text-blue-400">R$ 0,00</span></p>
                 <p class="flex justify-between"><span>Crédito:</span> <span id="loja01DailyCredito" class="font-semibold text-blue-400">R$ 0,00</span></p>
+                <hr class="border-gray-600"/>
+                <p class="flex justify-between items-center pt-2">
+                    <span class="font-medium text-gray-300">Total:</span>
+                    <span id="loja01DailyTotal" class="text-xl font-bold text-blue-400">R$ 0,00</span>
+                </p>
             </div>
             <h3 class="text-lg font-medium text-gray-300 mt-4 mb-2">Faturamento Semanal - Loja 01</h3>
             <p id="loja01WeeklyTotal" class="text-2xl font-bold text-blue-400">R$ 0,00</p>
@@ -122,6 +132,11 @@
                 <p class="flex justify-between"><span>Pix:</span> <span id="loja02DailyPix" class="font-semibold text-yellow-400">R$ 0,00</span></p>
                 <p class="flex justify-between"><span>Débito:</span> <span id="loja02DailyDebito" class="font-semibold text-yellow-400">R$ 0,00</span></p>
                 <p class="flex justify-between"><span>Crédito:</span> <span id="loja02DailyCredito" class="font-semibold text-yellow-400">R$ 0,00</span></p>
+                <hr class="border-gray-600"/>
+                <p class="flex justify-between items-center pt-2">
+                    <span class="font-medium text-gray-300">Total:</span>
+                    <span id="loja02DailyTotal" class="text-xl font-bold text-yellow-400">R$ 0,00</span>
+                </p>
             </div>
             <h3 class="text-lg font-medium text-gray-300 mt-4 mb-2">Faturamento Semanal - Loja 02</h3>
             <p id="loja02WeeklyTotal" class="text-2xl font-bold text-yellow-400">R$ 0,00</p>
@@ -469,6 +484,12 @@
 
   let comissaoAssinaturas, comissaoCartaoPresente; // Commission elements for barber summary
 
+  // Global variables for store daily totals
+  let reportFaturamentoDiarioTotal; // Declared globally
+  let loja01DailyTotal; // Declared globally
+  let loja02DailyTotal; // Declared globally
+
+
   const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
   function getWeekId(d = new Date()) {
@@ -549,6 +570,7 @@
       reportFaturamentoDiarioPix: document.getElementById('reportFaturamentoDiarioPix'),
       reportFaturamentoDiarioDebito: document.getElementById('reportFaturamentoDiarioDebito'),
       reportFaturamentoDiarioCredito: document.getElementById('reportFaturamentoDiarioCredito'),
+      reportFaturamentoDiarioTotal: document.getElementById('reportFaturamentoDiarioTotal') // Initialized here
     };
     detalheAssinaturas = document.getElementById('detalheAssinaturas');
     detalheCartaoPresente = document.getElementById('detalheCartaoPresente');
@@ -573,6 +595,9 @@
 
     comissaoAssinaturas = document.getElementById('comissaoAssinaturas');
     comissaoCartaoPresente = document.getElementById('comissaoCartaoPresente');
+    // Initialize global variables for store daily totals
+    loja01DailyTotal = document.getElementById('loja01DailyTotal');
+    loja02DailyTotal = document.getElementById('loja02DailyTotal');
   }
 
   async function initializeAppAndAuth() {
@@ -1448,7 +1473,7 @@
                                 switch (t.productPaymentMethod) {
                                     case 'Dinheiro': totals.loja02DailyDinheiro += t.productSaleValue; break;
                                     case 'Pix': totals.loja02DailyPix += t.productSaleValue; break;
-                                    case 'Débito': totals.loja02DailyDebito += t.productSaleValue; break;
+                                    case 'Débito': totals.lo2DailyDebito += t.productSaleValue; break;
                                     case 'Crédito': totals.loja02DailyCredito += t.productSaleValue; break;
                                 }
                             }
@@ -1487,7 +1512,7 @@
                                 switch (t.planSalePaymentMethod) {
                                     case 'Dinheiro': totals.loja02DailyDinheiro += t.planSaleValue; break;
                                     case 'Pix': totals.loja02DailyPix += t.planSaleValue; break;
-                                    case 'Débito': totals.loja02DailyDebito += t.planSaleValue; break;
+                                    case 'Débito': totals.lo2DailyDebito += t.planSaleValue; break;
                                     case 'Crédito': totals.loja02DailyCredito += t.planSaleValue; break;
                                 }
                             }
@@ -1518,6 +1543,10 @@
     adminReportSpans.reportFaturamentoDiarioPix.textContent = formatCurrency(totals.faturamentoDiarioPix);
     adminReportSpans.reportFaturamentoDiarioDebito.textContent = formatCurrency(totals.faturamentoDiarioDebito);
     adminReportSpans.reportFaturamentoDiarioCredito.textContent = formatCurrency(totals.faturamentoDiarioCredito);
+    // Calculate and update the total daily revenue for the admin panel
+    const totalDailyAdmin = totals.faturamentoDiarioDinheiro + totals.faturamentoDiarioPix + totals.faturamentoDiarioDebito + totals.faturamentoDiarioCredito;
+    adminReportSpans.reportFaturamentoDiarioTotal.textContent = formatCurrency(totalDailyAdmin);
+
 
     // Update UI for weekly summary (overall)
     adminReportSpans.faturamentoTotal.textContent = formatCurrency(totals.faturamentoTotalCurrentWeek);
@@ -1537,12 +1566,18 @@
     loja01DailyDebito.textContent = formatCurrency(totals.loja01DailyDebito);
     loja01DailyCredito.textContent = formatCurrency(totals.loja01DailyCredito);
     loja01WeeklyTotal.textContent = formatCurrency(totals.loja01WeeklyTotal);
+    // Calculate and update the total daily revenue for Loja 01
+    const totalDailyLoja01 = totals.loja01DailyDinheiro + totals.loja01DailyPix + totals.loja01DailyDebito + totals.loja01DailyCredito;
+    loja01DailyTotal.textContent = formatCurrency(totalDailyLoja01);
 
     loja02DailyDinheiro.textContent = formatCurrency(totals.loja02DailyDinheiro);
     loja02DailyPix.textContent = formatCurrency(totals.loja02DailyPix);
     loja02DailyDebito.textContent = formatCurrency(totals.loja02DailyDebito);
     loja02DailyCredito.textContent = formatCurrency(totals.loja02DailyCredito);
     loja02WeeklyTotal.textContent = formatCurrency(totals.loja02WeeklyTotal);
+    // Calculate and update the total daily revenue for Loja 02
+    const totalDailyLoja02 = totals.loja02DailyDinheiro + totals.loja02DailyPix + totals.loja02DailyDebito + totals.loja02DailyCredito;
+    loja02DailyTotal.textContent = formatCurrency(totalDailyLoja02);
 
     // Render barber ranking (weekly)
     barberRankingList.innerHTML = '';

@@ -90,6 +90,11 @@
             <p class="flex justify-between"><span>Pix:</span> <span id="reportFaturamentoDiarioPix" class="font-semibold text-teal-400">R$ 0,00</span></p>
             <p class="flex justify-between"><span>Débito:</span> <span id="reportFaturamentoDiarioDebito" class="font-semibold text-teal-400">R$ 0,00</span></p>
             <p class="flex justify-between"><span>Crédito:</span> <span id="reportFaturamentoDiarioCredito" class="font-semibold text-teal-400">R$ 0,00</span></p>
+            <hr class="border-gray-600"/>
+            <p class="flex justify-between items-center pt-2">
+                <span class="font-medium text-gray-300">Total:</span>
+                <span id="reportFaturamentoDiarioTotal" class="text-xl font-bold text-teal-400">R$ 0,00</span>
+            </p>
           </div>
         </div>
 
@@ -1316,7 +1321,7 @@
 
   function calculateAdminReport(allEntriesData) {
     const totals = {
-      faturamentoTotalCurrentWeek: 0, // Overall weekly real faturamento (services + products + plan sales)
+      faturamentoTotalCurrentWeek: 0, // Overall weekly real faturamento (services + products ONLY)
       dinheiro: 0, // Overall weekly real faturamento by payment method (services + products + plan sales)
       pix: 0,
       debito: 0,
@@ -1385,42 +1390,43 @@
 
                     // Process service value (if it's a real payment method)
                     if (t.serviceDescription && t.value > 0) { // Check if it's a service transaction
-                        totals.faturamentoTotalCurrentWeek += t.value; // Overall weekly faturamento (service value)
+                        // Only add service value to overall Faturamento Bruto Total if it's a real payment method
                         if (t.paymentMethod !== 'Assinatura' && t.paymentMethod !== 'Cartão Presente') {
-                            barberWeeklyRevenue[barberId] += t.value; // Only real service payments for barber ranking
+                            totals.faturamentoTotalCurrentWeek += t.value; 
+                        }
+                        barberWeeklyRevenue[barberId] += t.value; // Service value always counts for barber ranking
 
-                            if (weekDays[currentDayOfWeek] === dayKey) {
-                                switch (t.paymentMethod) {
-                                    case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.value; break;
-                                    case 'Pix': totals.faturamentoDiarioPix += t.value; break;
-                                    case 'Débito': totals.faturamentoDiarioDebito += t.value; break;
-                                    case 'Crédito': totals.faturamentoDiarioCredito += t.value; break;
-                                }
-                                if (barberStore === 'loja01') {
-                                    switch (t.paymentMethod) {
-                                        case 'Dinheiro': totals.loja01DailyDinheiro += t.value; break;
-                                        case 'Pix': totals.loja01DailyPix += t.value; break;
-                                        case 'Débito': totals.loja01DailyDebito += t.value; break;
-                                        case 'Crédito': totals.loja01DailyCredito += t.value; break;
-                                    }
-                                } else if (barberStore === 'loja02') {
-                                    switch (t.paymentMethod) {
-                                        case 'Dinheiro': totals.loja02DailyDinheiro += t.value; break;
-                                        case 'Pix': totals.loja02DailyPix += t.value; break;
-                                        case 'Débito': totals.lo2DailyDebito += t.value; break;
-                                        case 'Crédito': totals.loja02DailyCredito += t.value; break;
-                                    }
-                                }
-                            }
-                            if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.value;
-                            else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.value;
-
+                        if (weekDays[currentDayOfWeek] === dayKey) {
                             switch (t.paymentMethod) {
-                                case 'Dinheiro': totals.dinheiro += t.value; break;
-                                case 'Pix': totals.pix += t.value; break;
-                                case 'Débito': totals.debito += t.value; break;
-                                case 'Crédito': totals.credito += t.value; break;
+                                case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.value; break;
+                                case 'Pix': totals.faturamentoDiarioPix += t.value; break;
+                                case 'Débito': totals.faturamentoDiarioDebito += t.value; break;
+                                case 'Crédito': totals.faturamentoDiarioCredito += t.value; break;
                             }
+                            if (barberStore === 'loja01') {
+                                switch (t.paymentMethod) {
+                                    case 'Dinheiro': totals.loja01DailyDinheiro += t.value; break;
+                                    case 'Pix': totals.loja01DailyPix += t.value; break;
+                                    case 'Débito': totals.loja01DailyDebito += t.value; break;
+                                    case 'Crédito': totals.loja01DailyCredito += t.value; break;
+                                }
+                            } else if (barberStore === 'loja02') {
+                                switch (t.paymentMethod) {
+                                    case 'Dinheiro': totals.loja02DailyDinheiro += t.value; break;
+                                    case 'Pix': totals.loja02DailyPix += t.value; break;
+                                    case 'Débito': totals.lo2DailyDebito += t.value; break;
+                                    case 'Crédito': totals.loja02DailyCredito += t.value; break;
+                                }
+                            }
+                        }
+                        if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.value;
+                        else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.value;
+
+                        switch (t.paymentMethod) {
+                            case 'Dinheiro': totals.dinheiro += t.value; break;
+                            case 'Pix': totals.pix += t.value; break;
+                            case 'Débito': totals.debito += t.value; break;
+                            case 'Crédito': totals.credito += t.value; break;
                         }
                     }
 
@@ -1447,7 +1453,7 @@
                                 switch (t.productPaymentMethod) {
                                     case 'Dinheiro': totals.loja02DailyDinheiro += t.productSaleValue; break;
                                     case 'Pix': totals.loja02DailyPix += t.productSaleValue; break;
-                                    case 'Débito': totals.loja02DailyDebito += t.productSaleValue; break;
+                                    case 'Débito': totals.lo2DailyDebito += t.productSaleValue; break;
                                     case 'Crédito': totals.loja02DailyCredito += t.productSaleValue; break;
                                 }
                             }
@@ -1517,6 +1523,10 @@
     adminReportSpans.reportFaturamentoDiarioPix.textContent = formatCurrency(totals.faturamentoDiarioPix);
     adminReportSpans.reportFaturamentoDiarioDebito.textContent = formatCurrency(totals.faturamentoDiarioDebito);
     adminReportSpans.reportFaturamentoDiarioCredito.textContent = formatCurrency(totals.faturamentoDiarioCredito);
+    // Calculate and update the total daily revenue for the admin panel
+    const totalDailyAdmin = totals.faturamentoDiarioDinheiro + totals.faturamentoDiarioPix + totals.faturamentoDiarioDebito + totals.faturamentoDiarioCredito;
+    adminReportSpans.reportFaturamentoDiarioTotal.textContent = formatCurrency(totalDailyAdmin);
+
 
     // Update UI for weekly summary (overall)
     adminReportSpans.faturamentoTotal.textContent = formatCurrency(totals.faturamentoTotalCurrentWeek);

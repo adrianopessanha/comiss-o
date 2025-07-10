@@ -219,21 +219,31 @@
     elements.password.addEventListener('keyup', (e) => e.key === 'Enter' && handleLogin());
   }
 
-  function setupAuthListener() {
+  // SUBSTITUA A SUA FUNÇÃO ANTIGA POR ESTA
+
+function setupAuthListener() {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        const userInfo = Object.values(users).find(u => u.email.toLowerCase() === user.email.toLowerCase());
+        // Usuário está logado no Firebase. Vamos encontrar suas informações.
+        const loggedInEmail = user.email.toLowerCase();
+        
+        // *** ESTA É A LÓGICA DE BUSCA CORRIGIDA E MAIS ROBUSTA ***
+        const userInfo = Object.values(users).find(u => u.email.toLowerCase() === loggedInEmail);
+
         if (userInfo) {
+            // SUCESSO! Encontramos o usuário na nossa lista.
             loggedInUser = { ...userInfo, uid: user.uid };
             elements.loginScreen.classList.add('hidden');
             elements.appContainer.classList.remove('hidden');
-            setupUIForUser();
+            setupUIForUser(); // Prepara a tela principal
         } else {
-            console.error("FALHA NA BUSCA LOCAL:", user.email);
-            auth.signOut();
-            alert("Erro de configuração: usuário não reconhecido.");
+            // ERRO: O Firebase autenticou, mas não achamos o email na nossa lista 'users'.
+            console.error("FALHA NA BUSCA LOCAL: Usuário logado com sucesso no Firebase, mas o e-mail '" + loggedInEmail + "' não foi encontrado na sua lista 'const users'. Verifique se o e-mail está escrito exatamente igual nos dois lugares.");
+            auth.signOut(); // Desloga por segurança
+            alert("Erro de configuração: Seu usuário é válido, mas não foi reconhecido pelo sistema. Contate o administrador.");
         }
       } else {
+        // Usuário está deslogado.
         loggedInUser = null;
         elements.loginScreen.classList.remove('hidden');
         elements.appContainer.classList.add('hidden');
@@ -241,7 +251,7 @@
         if (unsubscribeHistory) unsubscribeHistory();
       }
     });
-  }
+}
 
   // --- LÓGICA PRINCIPAL ---
   async function handleLogin() {

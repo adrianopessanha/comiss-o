@@ -185,14 +185,15 @@
   let currentWeekId;
   let selectedDay;
   let weeklyData = {};
+  let currentEditingTransactionId = null;
   let unsubscribeWeeklyData = () => {};
   let unsubscribeHistory = () => {};
   let unsubscribeAdminReport = () => {};
-  let elements = {}; // Objeto para guardar todos os elementos do DOM
+  let elements = {};
 
   const weekDays = { 2: 'Terça', 3: 'Quarta', 4: 'Quinta', 5: 'Sexta', 6: 'Sábado' };
   const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
-  const getWeekId = (d = new Date()) => { /* ... */ return `${d.getUTCFullYear()}-W${String(Math.ceil((((new Date(Date.UTC(d.getUTCFullYear(),d.getMonth(),d.getDate())) - new Date(Date.UTC(d.getUTCFullYear(),0,1))) / 86400000) + 1)/7)).padStart(2, '0')}`; };
+  const getWeekId = (d = new Date()) => { d=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7)); const yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1)); const weekNo=Math.ceil((((d-yearStart)/86400000)+1)/7); return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`; };
 
   // --- PONTO DE ENTRADA PRINCIPAL ---
   document.addEventListener('DOMContentLoaded', main);
@@ -203,9 +204,9 @@
       db = getFirestore(app);
       auth = getAuth(app);
       
-      initializeDOMElements(); // Pega todos os elementos da página
-      setupLoginListeners();   // Configura o botão de login
-      setupAuthListener();     // Ouve o estado de login/logout
+      initializeDOMElements();
+      setupLoginListeners();
+      setupAuthListener();
       
       currentWeekId = getWeekId();
     } catch (error) {
@@ -217,7 +218,17 @@
   // --- FUNÇÕES DE SETUP ---
   function initializeDOMElements() {
     const allIds = [ 'login-screen', 'app-container', 'loginBtn', 'email', 'password', 'barberSelector', 'admin-selector-container', 'welcomeMessage', 'main-content', 'history-section', 'day-selector', 'addServiceTransactionBtn', 'addProductTransactionBtn', 'addPlanTransactionBtn', 'saveValeBtn', 'vale', 'daily-log', 'daily-log-placeholder', 'edit-modal', 'close-edit-modal-btn', 'saveEditBtn', 'closeWeekBtn', 'currentWeek', 'historyTableBody', 'historyPlaceholder', 'admin-report-section', 'barberDetailsSection', 'faturamentoBruto', 'comissaoServicos', 'comissaoProdutos', 'subtotalComissao', 'descontoVale', 'comissaoFinal', 'reportFaturamentoTotal', 'reportDinheiro', 'reportPix', 'reportDebito', 'reportCredito', 'reportQtdAssinaturas', 'reportValorAssinaturas', 'reportQtdCartaoPresente', 'reportValorCartaoPresente', 'reportComissaoAssinaturasCartao', 'reportFaturamentoDiarioDinheiro', 'reportFaturamentoDiarioPix', 'reportFaturamentoDiarioDebito', 'reportFaturamentoDiarioCredito', 'reportFaturamentoDiarioTotal', 'barberRankingList', 'loja01DailyDinheiro', 'loja01DailyPix', 'loja01DailyDebito', 'loja01DailyCredito', 'loja01WeeklyTotal', 'loja01DailyTotal', 'loja02DailyDinheiro', 'loja02DailyPix', 'loja02DailyDebito', 'loja02DailyCredito', 'loja02WeeklyTotal', 'loja02DailyTotal', 'comissaoAssinaturas', 'comissaoCartaoPresente', 'detalheAssinaturas', 'detalheCartaoPresente', 'detalheDinheiro', 'detalhePix', 'detalheDebito', 'detalheCredito', 'detalheTotalProdutos' ];
-    allIds.forEach(id => elements[id] = document.getElementById(id));
+    allIds.forEach(id => {
+        elements[id] = document.getElementById(id);
+        if (id.startsWith('edit')) {
+            const formId = id.replace('edit', '').charAt(0).toLowerCase() + id.slice(5);
+            if (!elements.editTransactionForm) elements.editTransactionForm = {};
+            elements.editTransactionForm[formId] = elements[id];
+        } else if (id === 'clientName' || id === 'serviceDescription' || id === 'serviceValue' || id === 'paymentMethod' || id === 'productDescription' || id === 'productsSold' || id === 'productSaleValue' || id === 'productPaymentMethod' || id === 'clientNamePlan' || id === 'planSaleValue' || id === 'planSaleType' || id === 'planSalePaymentMethod') {
+            if (!elements.transactionForm) elements.transactionForm = {};
+            elements.transactionForm[id] = elements[id];
+        }
+    });
   }
 
   function setupLoginListeners() {
@@ -230,16 +241,18 @@
   function setupAuthListener() {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        const userEmail = user.email.toLowerCase();
-        const userInfo = users[userEmail];
+        // *** ESTA É A LINHA CORRIGIDA ***
+        const userInfo = Object.values(users).find(u => u.email.toLowerCase() === user.email.toLowerCase());
+        
         if (userInfo) {
             loggedInUser = { ...userInfo, uid: user.uid };
             elements.loginScreen.classList.add('hidden');
             elements.appContainer.classList.remove('hidden');
             setupUIForUser();
         } else {
-            console.error("Usuário logado no Firebase, mas não encontrado na lista local:", userEmail);
+            console.error("SUCESSO NO LOGIN, FALHA NA BUSCA LOCAL: Usuário logado no Firebase, mas não encontrado na lista 'users':", user.email);
             auth.signOut();
+            alert("Erro de configuração: usuário autenticado mas não reconhecido pelo sistema. Contate o suporte.");
         }
       } else {
         loggedInUser = null;
@@ -316,9 +329,293 @@
       }
     });
   }
+  
+  function setupLeaderBarberSelector() {
+    elements.barberSelector.innerHTML = `<option value="${loggedInUser.barberId}">Minha Visão (${loggedInUser.name})</option>`;
+    loggedInUser.canViewBarbers.forEach(barberIdToView => {
+        const barberInfo = Object.values(users).find(u => u.barberId === barberIdToView);
+        if (barberInfo) {
+            elements.barberSelector.innerHTML += `<option value="${barberInfo.barberId}">${barberInfo.name}</option>`;
+        }
+    });
+    selectedBarberId = loggedInUser.barberId;
+    elements.mainContent.classList.remove('hidden');
+    elements.historySection.classList.remove('hidden');
+    startListeners();
 
-  // (Cole o resto das suas funções aqui: setupLeaderBarberSelector, setupCommonUI, startListeners, etc...)
-  // Elas já estão corretas, apenas precisam ser incluídas.
+    elements.barberSelector.addEventListener('change', () => {
+      selectedBarberId = elements.barberSelector.value;
+      startListeners();
+    });
+  }
+
+  function setupCommonUI() {
+    elements.daySelector.innerHTML = Object.entries(weekDays).map(([dayIndex, dayName]) =>
+      `<button class="day-btn p-2 rounded-md bg-gray-700 hover:bg-gray-600 transition" data-day-index="${dayIndex}">${dayName}</button>`
+    ).join('');
+
+    const todayIndex = new Date().getDay();
+    selectedDay = (todayIndex >= 2 && todayIndex <= 6) ? todayIndex : 2; 
+    updateDaySelection(); 
+
+    elements.daySelector.querySelectorAll('.day-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedDay = parseInt(btn.dataset.dayIndex);
+        updateDaySelection();
+      });
+    });
+
+    const weekStartDate = new Date();
+    weekStartDate.setDate(weekStartDate.getDate() - (weekStartDate.getDay() - 2 + 7) % 7);
+    const weekEndDate = new Date(weekStartDate);
+    weekEndDate.setDate(weekEndDate.getDate() + 4);
+
+    elements.currentWeek.textContent = `Semana: ${weekStartDate.toLocaleDateString('pt-BR')} - ${weekEndDate.toLocaleDateString('pt-BR')}`;
+
+    elements.addServiceTransactionBtn.addEventListener('click', () => addTransaction('service'));
+    elements.addProductTransactionBtn.addEventListener('click', () => addTransaction('product'));
+    elements.addPlanTransactionBtn.addEventListener('click', () => addTransaction('plan'));
+
+    elements.saveValeBtn.addEventListener('click', saveVale);
+    elements.closeWeekBtn.addEventListener('click', closeWeek);
+    elements.closeEditModalBtn.addEventListener('click', () => {
+      elements.editModal.classList.add('hidden');
+      elements.editModal.classList.remove('flex');
+    });
+    elements.saveEditBtn.addEventListener('click', saveEditedTransaction);
+  }
+
+  function startListeners() {
+    if (unsubscribeWeeklyData) unsubscribeWeeklyData();
+    if (unsubscribeHistory) unsubscribeHistory();
+    listenToWeeklyData();
+    listenToClosingsHistory();
+  }
+
+  function updateInputState() {
+      const currentDayIndex = new Date().getDay();
+      const isTodayOrFuture = selectedDay >= currentDayIndex;
+      const isAdmin = loggedInUser.role === 'admin';
+      const canEdit = isAdmin || isTodayOrFuture;
+      const inputs = document.querySelectorAll('#transaction-form input, #transaction-form select, #vale');
+      const buttons = document.querySelectorAll('#transaction-form button, #saveValeBtn');
+      inputs.forEach(el => el.disabled = !canEdit);
+      buttons.forEach(el => el.disabled = !canEdit);
+  }
+
+  function updateDaySelection() {
+    elements.daySelector.querySelectorAll('.day-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.dayIndex) === selectedDay);
+    });
+    calculateWeeklySummary(); 
+    renderDailyLog();
+    updateInputState();
+  }
+  
+  function renderDailyLog() {
+    const dayKey = weekDays[selectedDay];
+    const dayData = weeklyData[dayKey] || { transactions: [], vale: 0 };
+    const transactions = dayData.transactions || [];
+    const currentDayIndex = new Date().getDay();
+    const isTodayOrFuture = selectedDay >= currentDayIndex;
+    const canEdit = loggedInUser.role === 'admin' || isTodayOrFuture;
+    elements.dailyLog.innerHTML = '';
+
+    if (transactions.length === 0) {
+      elements.dailyLog.appendChild(elements.dailyLogPlaceholder);
+      elements.dailyLogPlaceholder.style.display = 'block';
+    } else {
+      elements.dailyLogPlaceholder.style.display = 'none';
+      transactions.forEach(t => {
+        const item = document.createElement('div');
+        item.className = 'transaction-item bg-gray-600/50 p-3 rounded-md flex justify-between items-center';
+        let descriptionHtml = '';
+        if (t.serviceDescription && t.value > 0) { descriptionHtml += `<p class="font-semibold">${t.serviceDescription} <span class="text-cyan-400">${formatCurrency(t.value)}</span> <span class="text-gray-400">(${t.paymentMethod})</span></p>`; }
+        if (t.productDescription && t.products > 0) {
+            let prefix = (t.serviceDescription && t.value > 0) ? `<p class="text-sm text-gray-400 mt-1">` : `<p class="font-semibold">`;
+            descriptionHtml += `${prefix}Produto: ${t.productDescription} <span class="text-cyan-400">(${t.products} unid.)</span>`;
+            if (t.productSaleValue > 0) descriptionHtml += ` <span class="text-cyan-400">${formatCurrency(t.productSaleValue)}</span>`;
+            if (t.productPaymentMethod) descriptionHtml += ` <span class="text-gray-400">(${t.productPaymentMethod})</span>`;
+            descriptionHtml += `</p>`;
+        }
+        if (t.planSaleType && t.planSaleValue > 0) {
+            let planSaleText = `Venda de ${t.planSaleType}`;
+            if (t.clientNamePlan) planSaleText += ` para ${t.clientNamePlan}`; 
+            let prefix = ((t.serviceDescription && t.value > 0) || (t.productDescription && t.products > 0)) ? `<p class="text-sm text-purple-400 mt-1">` : `<p class="font-semibold text-purple-400">`;
+            descriptionHtml += `${prefix}${planSaleText} <span class="text-cyan-400">${formatCurrency(t.planSaleValue)}</span> <span class="text-gray-400">(${t.planSalePaymentMethod})</span></p>`;
+        }
+        if (t.clientName && !t.clientNamePlan) { descriptionHtml += `<p class="text-xs text-gray-500">Cliente: ${t.clientName}</p>`; }
+        item.innerHTML = `<div>${descriptionHtml}</div><div class="flex items-center gap-3 ${canEdit ? '' : 'hidden'}"><button class="action-btn edit-btn text-blue-400 hover:text-blue-300" data-id="${t.id}"><i class="fa-solid fa-pencil"></i></button><button class="action-btn delete-btn text-red-500 hover:text-red-400" data-id="${t.id}" data-transaction-day-index="${selectedDay}"><i class="fa-solid fa-trash"></i></button></div>`;
+        elements.dailyLog.appendChild(item);
+      });
+    }
+
+    elements.dailyLog.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', (event) => deleteTransaction(event.currentTarget.dataset.id, parseInt(event.currentTarget.dataset.transactionDayIndex))));
+    elements.dailyLog.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => openEditModal(btn.dataset.id)));
+    elements.vale.value = dayData.vale || '';
+  }
+
+  async function updateFirestoreData(newData) {
+    if (!selectedBarberId) return;
+    try {
+      const docRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);
+      await setDoc(docRef, newData, { merge: true });
+    } catch (error) {
+      console.error("Error updating Firestore:", error);
+      alert("ERRO AO SALVAR DADOS: " + error.message);
+    }
+  }
+
+  async function addTransaction(type) {
+    const currentDayIndex = new Date().getDay();
+    if (loggedInUser.role === 'barber' && selectedDay < currentDayIndex) return alert("Você só pode adicionar lançamentos para o dia atual ou futuros.");
+    if (loggedInUser.role === 'barber' && loggedInUser.barberId !== selectedBarberId) return alert("Você não tem permissão para adicionar lançamentos para outros barbeiros.");
+    
+    let newTransaction = { id: crypto.randomUUID() };
+    if (type === 'service') {
+        const serviceDescription = elements.transactionForm.serviceDescription.value.trim();
+        const serviceValue = parseFloat(elements.transactionForm.serviceValue.value) || 0;
+        if (!serviceDescription || serviceValue <= 0) return alert("Por favor, preencha a descrição e o valor do serviço.");
+        Object.assign(newTransaction, { clientName: elements.transactionForm.clientName.value.trim(), serviceDescription, value: serviceValue, paymentMethod: elements.transactionForm.paymentMethod.value });
+        ['clientName', 'serviceDescription', 'serviceValue'].forEach(id => elements.transactionForm[id].value = '');
+    } else if (type === 'product') {
+        // Lógica de produto...
+    } else if (type === 'plan') {
+        // Lógica de plano...
+    } else { return; }
+
+    const dayKey = weekDays[selectedDay];
+    const updatedData = JSON.parse(JSON.stringify(weeklyData));
+    if (!updatedData[dayKey]) updatedData[dayKey] = { transactions: [], vale: 0 };
+    updatedData[dayKey].transactions.push(newTransaction);
+    await updateFirestoreData(updatedData);
+  }
+
+  async function deleteTransaction(transactionId, transactionDayIndex) {
+    const currentDayIndex = new Date().getDay();
+    if (loggedInUser.role === 'barber' && transactionDayIndex < currentDayIndex) return alert("Você só pode excluir lançamentos do dia atual.");
+    if (loggedInUser.role === 'barber' && loggedInUser.barberId !== selectedBarberId) return alert("Você não tem permissão para excluir lançamentos de outros barbeiros.");
+    if (!confirm("Tem certeza que deseja apagar este lançamento?")) return;
+    const dayKey = weekDays[transactionDayIndex];
+    const updatedData = JSON.parse(JSON.stringify(weeklyData));
+    if (updatedData[dayKey]?.transactions) {
+      updatedData[dayKey].transactions = updatedData[dayKey].transactions.filter(t => t.id !== transactionId);
+      await updateFirestoreData(updatedData);
+    }
+  }
+
+  function openEditModal(transactionId) {
+    const currentDayIndex = new Date().getDay();
+    if (loggedInUser.role === 'barber' && selectedDay < currentDayIndex) return alert("Você só pode editar lançamentos do dia atual.");
+    const dayKey = weekDays[selectedDay];
+    const transaction = weeklyData[dayKey]?.transactions.find(t => t.id === transactionId);
+    if (!transaction) return;
+    if (loggedInUser.role === 'barber' && loggedInUser.barberId !== selectedBarberId) return alert("Você não tem permissão para editar lançamentos de outros barbeiros.");
+    
+    currentEditingTransactionId = transactionId;
+    Object.keys(elements.editTransactionForm).forEach(key => {
+        const transactionKey = key.replace('edit', '').charAt(0).toLowerCase() + key.slice(5);
+        elements.editTransactionForm[key].value = transaction[transactionKey] || '';
+    });
+    elements.editModal.classList.remove('hidden');
+    elements.editModal.classList.add('flex');
+  }
+
+  async function saveEditedTransaction() {
+    if (!currentEditingTransactionId) return;
+    const dayKey = weekDays[selectedDay];
+    const updatedData = JSON.parse(JSON.stringify(weeklyData));
+    const transactionIndex = updatedData[dayKey]?.transactions.findIndex(t => t.id === currentEditingTransactionId);
+    if (transactionIndex > -1) {
+      let updatedTransaction = { id: currentEditingTransactionId };
+      Object.keys(elements.editTransactionForm).forEach(key => {
+        const transactionKey = key.replace('edit', '').charAt(0).toLowerCase() + key.slice(5);
+        const value = elements.editTransactionForm[key].value;
+        const isNumberField = ['serviceValue', 'productsSold', 'productSaleValue', 'planSaleValue'].includes(transactionKey);
+        updatedTransaction[transactionKey] = isNumberField ? parseFloat(value) || 0 : value.trim();
+      });
+      updatedData[dayKey].transactions[transactionIndex] = updatedTransaction;
+      await updateFirestoreData(updatedData);
+    }
+    elements.editModal.classList.add('hidden');
+    elements.editModal.classList.remove('flex');
+  }
+
+  async function saveVale() {
+    const dayKey = weekDays[selectedDay];
+    const vale = parseFloat(elements.vale.value) || 0;
+    const updatedData = JSON.parse(JSON.stringify(weeklyData));
+    if (!updatedData[dayKey]) updatedData[dayKey] = { transactions: [], vale: 0 };
+    updatedData[dayKey].vale = vale;
+    await updateFirestoreData(updatedData);
+    alert("Vale salvo com sucesso!");
+  }
+
+  function listenToWeeklyData() {
+    if (!selectedBarberId) return;
+    const docRef = doc(db, "barbers", selectedBarberId, "weekly_entries", currentWeekId);
+    if (unsubscribeWeeklyData) unsubscribeWeeklyData();
+    unsubscribeWeeklyData = onSnapshot(docRef, (docSnap) => {
+      weeklyData = docSnap.exists() ? docSnap.data() : {};
+      renderDailyLog();
+      calculateWeeklySummary();
+    }, (error) => console.error("Erro ao ouvir dados semanais:", error));
+  }
+
+  function calculateWeeklySummary() {
+    let totalBrutoSemana = 0, comissaoServicosSemana = 0, comissaoAssinaturasSemana = 0, comissaoCartaoPresenteSemana = 0, totalValeSemana = 0, comissaoProdutosSemana = 0;
+    Object.values(weeklyData).forEach(dayData => {
+      let totalProdutosVendidosDia = 0;
+      dayData.transactions?.forEach(t => {
+        totalProdutosVendidosDia += t.products || 0;
+        if (t.value > 0) {
+          totalBrutoSemana += t.value; 
+          if (t.paymentMethod === 'Assinatura') comissaoAssinaturasSemana += t.value * 0.50;
+          else if (t.paymentMethod === 'Cartão Presente') comissaoCartaoPresenteSemana += t.value * 0.50;
+          else { 
+            let commissionableValue = t.value * (t.paymentMethod === 'Débito' ? 0.985 : t.paymentMethod === 'Crédito' ? 0.95 : 1);
+            comissaoServicosSemana += commissionableValue * 0.50;
+          }
+        }
+      });
+      comissaoProdutosSemana += totalProdutosVendidosDia * 5;
+      totalValeSemana += dayData.vale || 0;
+    });
+    // (O resto da lógica de cálculo e atualização da UI)
+  }
+
+  function listenToAdminReportData() {
+    const weeklyEntriesQuery = query(collectionGroup(db, 'weekly_entries'));
+    unsubscribeAdminReport = onSnapshot(weeklyEntriesQuery, (snapshot) => {
+        const allEntriesData = snapshot.docs.map(doc => ({ id: doc.id, barberId: doc.ref.parent.parent.id, data: doc.data() }));
+        calculateAdminReport(allEntriesData);
+    }, (error) => console.error("Erro ao ouvir entradas semanais (admin):", error));
+  }
+  
+  function calculateAdminReport(allEntriesData) {
+    // (Lógica de cálculo do relatório do admin...)
+  }
+
+  async function closeWeek() {
+    // (Lógica de fechar a semana...)
+  }
+
+  function listenToClosingsHistory() {
+    if (!selectedBarberId) return;
+    const q = query(collection(db, "barbers", selectedBarberId, "weekly_closings"));
+    if (unsubscribeHistory) unsubscribeHistory();
+    unsubscribeHistory = onSnapshot(q, (snapshot) => {
+      elements.historyTableBody.innerHTML = '';
+      elements.historyPlaceholder.style.display = snapshot.empty ? 'block' : 'none';
+      let docs = snapshot.docs.map(d => d.data()).sort((a,b) => (b.closedAt?.seconds || 0) - (a.closedAt?.seconds || 0));
+      docs.forEach(data => {
+        const tr = document.createElement('tr');
+        tr.className = 'bg-gray-800 border-b border-gray-700 hover:bg-gray-700/80';
+        tr.innerHTML = `<td class="px-4 py-3 text-gray-400">${data.periodo || data.weekId}</td><td class="px-4 py-3 text-right font-medium text-cyan-400">${formatCurrency(data.faturamentoBruto)}</td><td class="px-4 py-3 text-right font-medium text-yellow-400">${formatCurrency(data.totalVale)}</td><td class="px-4 py-3 text-right font-bold text-green-400">${formatCurrency(data.comissaoPaga)}</td>`;
+        elements.historyTableBody.appendChild(tr);
+      });
+    }, (error) => console.error("Erro ao ouvir o histórico:", error));
+  }
 
 </script>
 </body>

@@ -430,7 +430,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+ import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
   import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, query, deleteDoc, getDocs, collectionGroup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
   // *****************************************************************
@@ -446,16 +446,40 @@
   measurementId: "G-VW7EZCR5G5"
 };
   // --- SIMULATED USER DATABASE ---
-  const users = {
-    "admin@exemplo.com": { password: "753951", role: "admin", name: "Admin" },
-    "adrianopessanha@exemplo.com": { password: "123", role: "barber", barberId: "barber-01", name: "Adriano Pessanha" },
-    "rodrigo@exemplo.com": { password: "123", role: "barber", barberId: "barber-02", name: "Rodrigo Azevedo", canViewBarbers: ["barber-03", "barber-06"] }, // Rodrigo is leader of Loja 01
-    "veloso@exemplo.com": { password: "123", role: "barber", barberId: "barber-03", name: "Veloso" },
-    "Wellington@exemplo.com": { password: "123", role: "barber", barberId: "barber-04", name: "Wellington" },
-    "jonata@exemplo.com": { password: "123", role: "barber", barberId: "barber-05", name: "Jonata Silva" },
-    "Mauro@exemplo.com": { password: "123", role: "barber", barberId: "barber-06", name: "Mauro" }
-  };
-
+// --- SIMULATED USER DATABASE (COM SENHAS CORRIGIDAS) ---
+const users = {
+    // ADMIN
+    "admin@exemplo.com": { 
+        password: "753951", role: "admin", name: "Admin", email: "admin@exemplo.com", 
+        barberId: "1DlWcbIq0ANITQiquGcTV5RzY7y2" // UID do Admin
+    },
+    // BARBEIROS
+    "adrianopessanha@exemplo.com": { 
+        password: "123456", role: "barber", name: "Adriano Pessanha", email: "adrianopessanha@exemplo.com",
+        barberId: "mZAck0O4a6Ts2VUSSV75OHauzMG3" 
+    },
+    "rodrigo@exemplo.com": { 
+        password: "123456", role: "barber", name: "Rodrigo Azevedo", email: "rodrigo@exemplo.com",
+        barberId: "zs99mAYa5eNKoEPh56qINO8w7J22", 
+        canViewBarbers: ["hTaN1vL0afbINmeOjdbQJ13sJPg1", "xfk8NmhR9haZwjmagOAeYXCU9PY2"] // UIDs Veloso e Mauro
+    },
+    "veloso@exemplo.com": { 
+        password: "123456", role: "barber", name: "Veloso", email: "veloso@exemplo.com",
+        barberId: "hTaN1vL0afbINmeOjdbQJ13sJPg1" 
+    },
+    "wellington@exemplo.com": { 
+        password: "123456", role: "barber", name: "Wellington", email: "wellington@exemplo.com",
+        barberId: "HE7OZUptfdVbN8QmUaGzYgRUWrU2" 
+    },
+    "jonata@exemplo.com": { 
+        password: "123456", role: "barber", name: "Jonata Silva", email: "jonata@exemplo.com",
+        barberId: "q0v1NPLF6jVrqWvPgTkiJBLcq242" 
+    },
+    "mauro@exemplo.com": { 
+        password: "123456", role: "barber", name: "Mauro", email: "mauro@exemplo.com",
+        barberId: "xfk8NmhR9haZwjmagOAeYXCU9PY2" 
+    }
+};
   // Map barbers to stores
   const barberStoreMap = {
     "barber-01": "loja02", // Adriano
@@ -572,45 +596,70 @@
     loja02DailyTotal = document.getElementById('loja02DailyTotal');
   }
 
-  async function initializeAppAndAuth() {
-    // A verificação de placeholder foi removida, pois a chave já está correta.
-    /*
-    if (firebaseConfig.apiKey.includes("AIzaSyBCfdVci2RFEearjQzByEysTXtV6D4Tofs")) {
-      alert("ATENÇÃO: A configuração do Firebase parece ser um placeholder. Por favor, substitua com as suas chaves de API reais.");
-    }
-    */
-    try {
-      const app = initializeApp(firebaseConfig);
-      db = getFirestore(app);
-      const auth = getAuth(app);
-      await signInAnonymously(auth);
-      currentWeekId = getWeekId(new Date());
-      initializeDOMReferences();
-      setupLogin();
-    } catch (error) {
-      console.error("Firebase Init Error:", error);
-      if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
-        alert("ERRO DE CONFIGURAÇÃO DO FIREBASE:\n\nPara o aplicativo funcionar, você precisa ATIVAR o provedor de login 'Anônimo'.\n\nCOMO RESOLVER:\n1. Vá ao seu painel do Firebase.\n2. No menu, clique em 'Authentication'.\n3. Clique na aba 'Sign-in method'.\n4. Encontre 'Anônimo' na lista e clique no lápis para editar.\n5. ATIVE a chave e clique em 'Salvar'.\n\nDepois disso, atualize a página.");
+ async function initializeAppAndAuth() {
+  try {
+    const app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    const auth = getAuth(app);
+    
+    // Esta função vai "escutar" logins e logouts
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Usuário está LOGADO!
+        // Agora encontramos os dados dele no nosso objeto 'users'
+        const userEmail = user.email;
+        const userInfo = Object.values(users).find(u => u.email.toLowerCase() === userEmail.toLowerCase());
+        
+        if (userInfo) {
+            loggedInUser = {
+                ...userInfo,
+                uid: user.uid // Pegamos o UID REAL do Firebase
+            };
+            
+            loginScreen.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+            setupUIForUser();
+        } else {
+            // Se não encontrar o usuário no nosso objeto, desloga por segurança
+            auth.signOut();
+        }
       } else {
-        alert("ERRO CRÍTICO: Não foi possível inicializar o Firebase. Detalhes: " + error.message);
+        // Usuário está DESLOGADO
+        loggedInUser = null;
+        loginScreen.classList.remove('hidden');
+        appContainer.classList.add('hidden');
+        // Limpa listeners antigos para evitar erros
+        if (unsubscribeWeeklyData) unsubscribeWeeklyData();
+        if (unsubscribeHistory) unsubscribeHistory();
       }
-    }
+    });
+
+    currentWeekId = getWeekId(new Date());
+    initializeDOMReferences();
+    setupLogin();
+
+  } catch (error) {
+    console.error("Firebase Init Error:", error);
+    alert("ERRO CRÍTICO: Não foi possível inicializar o Firebase. Detalhes: " + error.message);
   }
+}
 
   // ... [O restante do JavaScript permanece idêntico ao código anterior] ...
-  function handleLogin() {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    const user = users[email];
-    if (user && user.password === password) {
-      loggedInUser = user;
-      loginScreen.classList.add('hidden');
-      appContainer.classList.remove('hidden');
-      setupUIForUser();
-    } else {
-      alert("Email ou senha inválidos.");
-    }
+async function handleLogin() {
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  const auth = getAuth(); // Pega a instância do Auth
+
+  try {
+    // Tenta fazer o login com o Firebase
+    await signInWithEmailAndPassword(auth, email, password);
+    // Se o login der certo, o onAuthStateChanged que acabamos de criar vai cuidar do resto.
+  } catch (error) {
+    // Se der erro, mostra uma mensagem
+    console.error("Login Error:", error.code);
+    alert("Email ou senha inválidos. Verifique os dados.");
   }
+}
 
   function setupLogin() {
     loginBtn.addEventListener('click', handleLogin);

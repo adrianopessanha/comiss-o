@@ -178,7 +178,7 @@
     "mZAck0O4a6Ts2VUSSV75OHauzMG3": "loja02", "zs99mAYa5eNKoEPh56qINO8w7J22": "loja01", "hTaN1vL0afbINmeOjdbQJ13sJPg1": "loja01", "HE7OZUptfdVbN8QmUaGzYgRUWrU2": "loja02", "q0v1NPLF6jVrqWvPgTkiJBLcq242": "loja02", "xfk8NmhR9haZwjmagOAeYXCU9PY2": "loja01"
   };
 
-  // --- VARIÁVEIS GLOBAIS DE ESTADO ---
+  // --- VARIÁVEIS GLOBAIS DE ESTADO E DOM ---
   let db, auth;
   let loggedInUser = null;
   let selectedBarberId = null;
@@ -188,59 +188,35 @@
   let unsubscribeWeeklyData = () => {};
   let unsubscribeHistory = () => {};
   let unsubscribeAdminReport = () => {};
-
-  // --- VARIÁVEIS DE ELEMENTOS DOM ---
-  // (Serão preenchidas depois que a página carregar)
-  let elements = {};
+  let elements = {}; // Objeto para guardar todos os elementos do DOM
 
   const weekDays = { 2: 'Terça', 3: 'Quarta', 4: 'Quinta', 5: 'Sexta', 6: 'Sábado' };
   const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
-  const getWeekId = (d = new Date()) => { /*...*/ return `${d.getUTCFullYear()}-W${String(Math.ceil((((new Date(Date.UTC(d.getUTCFullYear(),d.getMonth(),d.getDate())) - new Date(Date.UTC(d.getUTCFullYear(),0,1))) / 86400000) + 1)/7)).padStart(2, '0')}`; };
+  const getWeekId = (d = new Date()) => { /* ... */ return `${d.getUTCFullYear()}-W${String(Math.ceil((((new Date(Date.UTC(d.getUTCFullYear(),d.getMonth(),d.getDate())) - new Date(Date.UTC(d.getUTCFullYear(),0,1))) / 86400000) + 1)/7)).padStart(2, '0')}`; };
 
-  // --- FUNÇÃO PRINCIPAL QUE RODA QUANDO A PÁGINA ESTÁ PRONTA ---
-  document.addEventListener('DOMContentLoaded', () => {
+  // --- PONTO DE ENTRADA PRINCIPAL ---
+  document.addEventListener('DOMContentLoaded', main);
+
+  function main() {
     try {
-      // 1. Inicializa o Firebase
       const app = initializeApp(firebaseConfig);
       db = getFirestore(app);
       auth = getAuth(app);
       
-      // 2. Pega TODOS os elementos da página de uma vez
-      initializeDOMElements();
+      initializeDOMElements(); // Pega todos os elementos da página
+      setupLoginListeners();   // Configura o botão de login
+      setupAuthListener();     // Ouve o estado de login/logout
       
-      // 3. Configura os listeners de login
-      setupLoginListeners();
-      
-      // 4. Configura o listener de estado de autenticação
-      setupAuthListener();
-
       currentWeekId = getWeekId();
     } catch (error) {
       console.error("ERRO CRÍTICO: Não foi possível inicializar o Firebase.", error);
       alert("ERRO CRÍTICO: Não foi possível inicializar o Firebase. Detalhes: " + error.message);
     }
-  });
+  }
 
   // --- FUNÇÕES DE SETUP ---
-
   function initializeDOMElements() {
-    // Pega todos os IDs do HTML e os coloca no objeto 'elements'
-    const allIds = [
-        'login-screen', 'app-container', 'loginBtn', 'email', 'password', 'barberSelector', 'admin-selector-container',
-        'welcomeMessage', 'main-content', 'history-section', 'day-selector', 'addServiceTransactionBtn',
-        'addProductTransactionBtn', 'addPlanTransactionBtn', 'saveValeBtn', 'vale', 'daily-log',
-        'daily-log-placeholder', 'edit-modal', 'close-edit-modal-btn', 'saveEditBtn', 'closeWeekBtn',
-        'currentWeek', 'historyTableBody', 'historyPlaceholder', 'admin-report-section', 'barberDetailsSection',
-        'faturamentoBruto', 'comissaoServicos', 'comissaoProdutos', 'subtotalComissao', 'descontoVale', 'comissaoFinal',
-        'reportFaturamentoTotal', 'reportDinheiro', 'reportPix', 'reportDebito', 'reportCredito', 'reportQtdAssinaturas',
-        'reportValorAssinaturas', 'reportQtdCartaoPresente', 'reportValorCartaoPresente', 'reportComissaoAssinaturasCartao',
-        'reportFaturamentoDiarioDinheiro', 'reportFaturamentoDiarioPix', 'reportFaturamentoDiarioDebito',
-        'reportFaturamentoDiarioCredito', 'reportFaturamentoDiarioTotal', 'barberRankingList', 'loja01DailyDinheiro',
-        'loja01DailyPix', 'loja01DailyDebito', 'loja01DailyCredito', 'loja01WeeklyTotal', 'loja01DailyTotal',
-        'loja02DailyDinheiro', 'loja02DailyPix', 'loja02DailyDebito', 'loja02DailyCredito', 'loja02WeeklyTotal',
-        'loja02DailyTotal', 'comissaoAssinaturas', 'comissaoCartaoPresente', 'detalheAssinaturas', 'detalheCartaoPresente',
-        'detalheDinheiro', 'detalhePix', 'detalheDebito', 'detalheCredito', 'detalheTotalProdutos'
-    ];
+    const allIds = [ 'login-screen', 'app-container', 'loginBtn', 'email', 'password', 'barberSelector', 'admin-selector-container', 'welcomeMessage', 'main-content', 'history-section', 'day-selector', 'addServiceTransactionBtn', 'addProductTransactionBtn', 'addPlanTransactionBtn', 'saveValeBtn', 'vale', 'daily-log', 'daily-log-placeholder', 'edit-modal', 'close-edit-modal-btn', 'saveEditBtn', 'closeWeekBtn', 'currentWeek', 'historyTableBody', 'historyPlaceholder', 'admin-report-section', 'barberDetailsSection', 'faturamentoBruto', 'comissaoServicos', 'comissaoProdutos', 'subtotalComissao', 'descontoVale', 'comissaoFinal', 'reportFaturamentoTotal', 'reportDinheiro', 'reportPix', 'reportDebito', 'reportCredito', 'reportQtdAssinaturas', 'reportValorAssinaturas', 'reportQtdCartaoPresente', 'reportValorCartaoPresente', 'reportComissaoAssinaturasCartao', 'reportFaturamentoDiarioDinheiro', 'reportFaturamentoDiarioPix', 'reportFaturamentoDiarioDebito', 'reportFaturamentoDiarioCredito', 'reportFaturamentoDiarioTotal', 'barberRankingList', 'loja01DailyDinheiro', 'loja01DailyPix', 'loja01DailyDebito', 'loja01DailyCredito', 'loja01WeeklyTotal', 'loja01DailyTotal', 'loja02DailyDinheiro', 'loja02DailyPix', 'loja02DailyDebito', 'loja02DailyCredito', 'loja02WeeklyTotal', 'loja02DailyTotal', 'comissaoAssinaturas', 'comissaoCartaoPresente', 'detalheAssinaturas', 'detalheCartaoPresente', 'detalheDinheiro', 'detalhePix', 'detalheDebito', 'detalheCredito', 'detalheTotalProdutos' ];
     allIds.forEach(id => elements[id] = document.getElementById(id));
   }
 
@@ -276,12 +252,10 @@
   }
 
   // --- LÓGICA DE LOGIN E UI ---
-  
   async function handleLogin() {
     const email = elements.email.value.toLowerCase().trim();
     const password = elements.password.value;
     if (!email || !password) return alert("Por favor, preencha o e-mail e a senha.");
-    
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
@@ -316,9 +290,6 @@
     setupCommonUI();
   }
   
-  // --- FUNÇÕES DE LÓGICA DO APP (O RESTO DO SEU CÓDIGO) ---
-  // (As funções abaixo foram mantidas, apenas usando `elements.nomeDoElemento` em vez de variáveis soltas)
-
   function setupAdminBarberSelector() {
     elements.barberSelector.innerHTML = '<option value="">-- Visão Geral / Selecione um funcionário --</option>';
     const sortedBarbers = Object.values(users)
@@ -346,21 +317,9 @@
     });
   }
 
-  function setupLeaderBarberSelector() {
-    // (Lógica idêntica, usando `elements.`)
-  }
+  // (Cole o resto das suas funções aqui: setupLeaderBarberSelector, setupCommonUI, startListeners, etc...)
+  // Elas já estão corretas, apenas precisam ser incluídas.
 
-  function setupCommonUI() {
-    // (Lógica idêntica, usando `elements.`)
-  }
-
-  function startListeners() {
-    // (Lógica idêntica)
-  }
-  
-  // (Cole o resto das suas funções de lógica aqui: updateDaySelection, renderDailyLog, addTransaction, etc.)
-  // Lembre-se de trocar as variáveis de DOM por `elements.nomeDoElemento`
-  
 </script>
 </body>
 </html>

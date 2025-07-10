@@ -1,15 +1,409 @@
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Comissão Semanal - Barbearia</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .day-btn.active { background-color: #0891b2; color: white; }
+  .transaction-item:hover .action-btn { opacity: 1; }
+  .action-btn { opacity: 0; transition: opacity 0.2s ease-in-out; }
+  .modal-backdrop {
+    background-color: rgba(0,0,0,0.5);
+    transition: opacity 0.3s ease;
+  }
+  input:disabled, select:disabled, button:disabled {
+    background-color: #4a5568 !important;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body class="bg-gray-900 text-white antialiased">
+
+<!-- Tela de Login -->
+<div id="login-screen" class="min-h-screen flex items-center justify-center">
+  <div class="bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-700 w-full max-w-sm">
+    <h2 class="text-3xl font-bold text-center text-cyan-400 mb-6">Barber<span class="text-white">Commission</span></h2>
+    <div class="space-y-4">
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+        <input type="email" id="email" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:ring-2 focus:ring-cyan-500 transition" placeholder="seu@email.com">
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label>
+        <input type="password" id="password" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 focus:ring-2 focus:ring-cyan-500 transition" placeholder="••••••••">
+      </div>
+      <button id="loginBtn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Container Principal do App -->
+<div id="app-container" class="hidden">
+  <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+    <!-- Cabeçalho -->
+    <header class="text-center mb-6">
+      <h1 class="text-4xl font-bold text-cyan-400">Barber<span class="text-white">Commission</span></h1>
+      <p class="text-gray-400 mt-2">Fechamento de comissão semanal (Terça a Sábado)</p>
+      <p id="currentWeek" class="text-cyan-500 font-semibold mt-2"></p>
+      <p id="welcomeMessage" class="text-white mt-2"></p>
+    </header>
+
+    <!-- Seção do Relatório do Admin -->
+    <div id="admin-report-section" class="hidden bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 mb-8">
+      <h2 class="text-2xl font-semibold mb-4 text-center text-cyan-400">📊 Relatório Geral da Barbearia</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+        <div class="lg:col-span-2 bg-gray-700 p-4 rounded-lg">
+            <h3 class="text-lg font-medium text-gray-300 mt-4 mb-2">Faturamento Semanal - Loja 01</h3>
+            <p id="loja01WeeklyTotal" class="text-2xl font-bold text-blue-400">R$ 0,00</p>
+        </div>
+        <div class="lg:col-span-2 bg-gray-700 p-4 rounded-lg">
+            <h3 class="text-lg font-medium text-gray-300 mt-4 mb-2">Faturamento Semanal - Loja 02</h3>
+            <p id="loja02WeeklyTotal" class="text-2xl font-bold text-yellow-400">R$ 0,00</p>
+        </div>
+        <div class="lg:col-span-2 bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-medium text-gray-300 mb-2">Faturamento Diário - Loja 01 (Hoje)</h3>
+          <p id="loja01DailyTotal" class="text-xl font-bold text-blue-400">R$ 0,00</p>
+        </div>
+        <div class="lg:col-span-2 bg-gray-700 p-4 rounded-lg">
+            <h3 class="text-lg font-medium text-gray-300 mb-2">Faturamento Diário - Loja 02 (Hoje)</h3>
+            <p id="loja02DailyTotal" class="text-xl font-bold text-yellow-400">R$ 0,00</p>
+        </div>
+        <div class="lg:col-span-4 bg-gray-700 p-4 rounded-lg flex flex-col">
+          <h3 class="text-lg font-medium text-gray-300 mb-2">Ranking de Faturamento (Semanal)</h3>
+          <div id="barberRankingList" class="space-y-2 flex-grow overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
     
-    // Regra para um barbeiro acessar seus PRÓPRIOS dados
-    match /barbers/{barberId}/{collection}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == barberId;
+    <!-- Seletor de Barbeiro (Visão Admin/Líder) -->
+    <div id="admin-selector-container" class="max-w-md mx-auto mb-8 hidden">
+      <label for="barberSelector" class="block text-center text-lg font-medium text-gray-300 mb-2">Selecione o Funcionário</label>
+      <select id="barberSelector" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-3 text-lg focus:ring-2 focus:ring-cyan-500 transition"></select>
+    </div>
+
+    <!-- Conteúdo Principal (Lançamentos e Resumo) -->
+    <div id="main-content" class="grid grid-cols-1 lg:grid-cols-5 gap-8 hidden">
+      <!-- Coluna Esquerda: Lançamentos -->
+      <div class="lg:col-span-3 flex flex-col gap-6">
+        <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700">
+          <h2 class="text-2xl font-semibold mb-4">Lançamentos da Semana</h2>
+          <div id="day-selector" class="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-6"></div>
+          
+          <!-- Formulário de Lançamento -->
+          <div id="transaction-form" class="bg-gray-700/50 p-4 rounded-lg space-y-4">
+            <!-- (o resto do formulário permanece idêntico) -->
+          </div>
+
+          <!-- Atividade e Vale -->
+          <div class="mt-6">
+            <h3 class="font-semibold text-lg mb-2">Atividade do Dia</h3>
+            <div id="daily-log" class="space-y-2 max-h-96 overflow-y-auto pr-2">
+              <p id="daily-log-placeholder" class="text-gray-500 text-center p-4">Nenhum lançamento para este dia.</p>
+            </div>
+            <div class="relative mt-4">
+              <label for="vale" class="block text-sm font-medium text-yellow-400 mb-1">Registrar Vale para o Dia</label>
+              <div class="flex gap-2">
+                <input type="number" id="vale" placeholder="Valor do Vale (R$)" class="entry-input w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2">
+                <button id="saveValeBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-md transition">Salvar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna Direita: Resumo -->
+      <div class="lg:col-span-2">
+        <div class="bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 sticky top-8">
+          <h2 class="text-2xl font-semibold mb-4">Resumo da Semana</h2>
+          <!-- (a estrutura do resumo permanece idêntica) -->
+          <button id="closeWeekBtn" class="mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-lock"></i>
+            Encerrar e Pagar Semana
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Seção de Histórico -->
+    <div id="history-section" class="mt-12 hidden lg:col-span-5">
+      <!-- (a estrutura do histórico permanece idêntica) -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Edição -->
+<div id="edit-modal" class="fixed inset-0 z-50 items-center justify-center hidden modal-backdrop">
+  <!-- (a estrutura do modal permanece idêntica) -->
+</div>
+
+<!-- ======================================================== -->
+<!-- =================== CÓDIGO JAVASCRIPT ================== -->
+<!-- ======================================================== -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, query, deleteDoc, getDocs, collectionGroup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+  // *****************************************************************
+  // CONFIGURAÇÃO DO FIREBASE
+  // *****************************************************************
+  const firebaseConfig = {
+    apiKey: "AIzaSyBCfdVci2RFEearjQzByEysTXtV6D4Tofs",
+    authDomain: "comisao-dos-barbeiros.firebaseapp.com",
+    projectId: "comisao-dos-barbeiros",
+    storageBucket: "comisao-dos-barbeiros.firebasestorage.app",
+    messagingSenderId: "571199864529",
+    appId: "1:571199864529:web:0ea9584c0c5372192e4ff0",
+    measurementId: "G-VW7EZCR5G5"
+  };
+
+  // --- DATABASE DE USUÁRIOS (COM UIDs REAIS E SENHAS CORRIGIDAS) ---
+  const users = {
+    "admin@exemplo.com": { 
+        password: "753951", role: "admin", name: "Admin", email: "admin@exemplo.com", 
+        barberId: "1DlWcbIq0ANITQiquGcTV5RzY7y2"
+    },
+    "adrianopessanha@exemplo.com": { 
+        password: "123456", role: "barber", name: "Adriano Pessanha", email: "adrianopessanha@exemplo.com",
+        barberId: "mZAck0O4a6Ts2VUSSV75OHauzMG3" 
+    },
+    "rodrigo@exemplo.com": { 
+        password: "123456", role: "barber", name: "Rodrigo Azevedo", email: "rodrigo@exemplo.com",
+        barberId: "zs99mAYa5eNKoEPh56qINO8w7J22", 
+        canViewBarbers: ["hTaN1vL0afbINmeOjdbQJ13sJPg1", "xfk8NmhR9haZwjmagOAeYXCU9PY2"]
+    },
+    "veloso@exemplo.com": { 
+        password: "123456", role: "barber", name: "Veloso", email: "veloso@exemplo.com",
+        barberId: "hTaN1vL0afbINmeOjdbQJ13sJPg1" 
+    },
+    "wellington@exemplo.com": { 
+        password: "123456", role: "barber", name: "Wellington", email: "wellington@exemplo.com",
+        barberId: "HE7OZUptfdVbN8QmUaGzYgRUWrU2" 
+    },
+    "jonata@exemplo.com": { 
+        password: "123456", role: "barber", name: "Jonata Silva", email: "jonata@exemplo.com",
+        barberId: "q0v1NPLF6jVrqWvPgTkiJBLcq242" 
+    },
+    "mauro@exemplo.com": { 
+        password: "123456", role: "barber", name: "Mauro", email: "mauro@exemplo.com",
+        barberId: "xfk8NmhR9haZwjmagOAeYXCU9PY2" 
     }
-    
-    // Regra ESPECIAL para o ADMIN ler tudo
-    match /barbers/{barberId}/{collection}/{document=**} {
-        allow read: if request.auth.uid == '1DlWcbIq0ANITQiquGcTV5RzY7y2';
+  };
+
+  // *** CORREÇÃO CRÍTICA: MAPA DE LOJAS ATUALIZADO COM UIDs REAIS ***
+  const barberStoreMap = {
+    "mZAck0O4a6Ts2VUSSV75OHauzMG3": "loja02", // Adriano
+    "zs99mAYa5eNKoEPh56qINO8w7J22": "loja01", // Rodrigo
+    "hTaN1vL0afbINmeOjdbQJ13sJPg1": "loja01", // Veloso
+    "HE7OZUptfdVbN8QmUaGzYgRUWrU2": "loja02", // Wellington
+    "q0v1NPLF6jVrqWvPgTkiJBLcq242": "loja02", // Jonata
+    "xfk8NmhR9haZwjmagOAeYXCU9PY2": "loja01"  // Mauro
+  };
+
+  // --- VARIÁVEIS GLOBAIS ---
+  let db;
+  let selectedBarberId = null;
+  let loggedInUser = null;
+  let currentWeekId;
+  let selectedDay;
+  let weeklyData = {};
+  let currentEditingTransactionId = null;
+  let unsubscribeWeeklyData = () => {};
+  let unsubscribeHistory = () => {};
+  let unsubscribeAdminReport = () => {};
+  const weekDays = { 2: 'Terça', 3: 'Quarta', 4: 'Quinta', 5: 'Sexta', 6: 'Sábado' };
+  
+  // (Declaração de todas as variáveis de elementos DOM... mantidas para brevidade)
+  
+  const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
+
+  function getWeekId(d = new Date()) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+  }
+  
+  // (A função initializeDOMReferences é mantida idêntica ao seu código)
+  
+  // --- INICIALIZAÇÃO E AUTENTICAÇÃO ---
+  async function initializeAppAndAuth() {
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      const auth = getAuth(app);
+      
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          const userEmail = user.email.toLowerCase();
+          const userInfo = users[userEmail];
+          if (userInfo) {
+              loggedInUser = { ...userInfo, uid: user.uid };
+              loginScreen.classList.add('hidden');
+              appContainer.classList.remove('hidden');
+              setupUIForUser();
+          } else {
+              console.error("Usuário logado no Firebase, mas não encontrado na lista local:", userEmail);
+              auth.signOut();
+          }
+        } else {
+          loggedInUser = null;
+          loginScreen.classList.remove('hidden');
+          appContainer.classList.add('hidden');
+          if (unsubscribeWeeklyData) unsubscribeWeeklyData();
+          if (unsubscribeHistory) unsubscribeHistory();
+        }
+      });
+      currentWeekId = getWeekId(new Date());
+      // initializeDOMReferences(); // Será chamado dentro do setupUIForUser para garantir que o DOM está pronto
+      setupLogin();
+    } catch (error) {
+      console.error("Firebase Init Error:", error);
+      alert("ERRO CRÍTICO: Não foi possível inicializar o Firebase. Detalhes: " + error.message);
     }
   }
-}
+  
+  // --- FUNÇÕES DE LOGIN E UI ---
+  async function handleLogin() {
+    const email = emailInput.value.toLowerCase().trim();
+    const password = passwordInput.value;
+    const auth = getAuth();
+    if (!email || !password) {
+      alert("Por favor, preencha o e-mail e a senha.");
+      return;
+    }
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      console.error("Login Error:", error.code);
+      alert("Email ou senha inválidos. Verifique os dados.");
+    }
+  }
+
+  function setupLogin() {
+    // initializeDOMReferences só é chamado uma vez que a UI principal for mostrada
+    // Esta parte só precisa dos elementos de login
+    loginBtn = document.getElementById('loginBtn');
+    emailInput = document.getElementById('email');
+    passwordInput = document.getElementById('password');
+    loginScreen = document.getElementById('login-screen');
+    appContainer = document.getElementById('app-container');
+
+    loginBtn.addEventListener('click', handleLogin);
+    passwordInput.addEventListener('keyup', (event) => {
+      if (event.key === 'Enter') handleLogin();
+    });
+  }
+  
+  function setupUIForUser() {
+    // Agora inicializamos todas as outras referências DOM
+    initializeDOMReferences(); 
+    
+    welcomeMessage.textContent = `Bem-vindo(a), ${loggedInUser.name}!`;
+    if (loggedInUser.role === 'admin') {
+      adminSelectorContainer.classList.remove('hidden');
+      adminReportSection.classList.remove('hidden');
+      listenToAdminReportData();
+      barberDetailsSection.classList.add('hidden');
+      setupAdminBarberSelector();
+    } else { 
+      adminReportSection.classList.add('hidden'); 
+      if (loggedInUser.canViewBarbers && loggedInUser.canViewBarbers.length > 0) {
+        adminSelectorContainer.classList.remove('hidden');
+        barberDetailsSection.classList.remove('hidden');
+        setupLeaderBarberSelector();
+      } else {
+        adminSelectorContainer.classList.add('hidden');
+        barberDetailsSection.classList.remove('hidden');
+        selectedBarberId = loggedInUser.barberId;
+        mainContent.classList.remove('hidden');
+        historySection.classList.remove('hidden');
+        startListeners();
+      }
+    }
+    setupCommonUI();
+  }
+
+  // (O restante do código, de setupAdminBarberSelector em diante, é mantido idêntico mas com a lógica do calculateAdminReport corrigida)
+
+  function calculateAdminReport(allEntriesData) {
+    // Zera os totais antes de recalcular
+    const totals = { 
+        faturamentoTotalCurrentWeek: 0, 
+        loja01WeeklyTotal: 0, loja02WeeklyTotal: 0,
+        loja01DailyTotal: 0, loja02DailyTotal: 0
+    };
+    const barberWeeklyRevenue = {};
+    const today = new Date();
+    const currentDayKey = weekDays[today.getDay()];
+    const currentWeekIdCalculated = getWeekId(today);
+    const barberNames = Object.fromEntries(Object.values(users).map(u => [u.barberId, u.name]));
+
+    // Filtra apenas as entradas da semana atual
+    allEntriesData.filter(item => item.id === currentWeekIdCalculated).forEach(item => {
+        const { barberId, data: weeklyTransactionsByDay } = item;
+        const barberStore = barberStoreMap[barberId];
+        if (!barberStore) return; // Pula barbeiro sem loja definida
+
+        if (!barberWeeklyRevenue[barberId]) barberWeeklyRevenue[barberId] = 0;
+        
+        // Itera sobre os dias da semana (Terça, Quarta, etc.)
+        Object.entries(weeklyTransactionsByDay).forEach(([dayKey, dayData]) => {
+            if (!dayData.transactions) return;
+
+            const isToday = (dayKey === currentDayKey);
+
+            // Itera sobre as transações de cada dia
+            dayData.transactions.forEach(t => {
+                const revenue = (t.value || 0) + (t.productSaleValue || 0) + (t.planSaleValue || 0);
+                
+                barberWeeklyRevenue[barberId] += revenue;
+
+                if (barberStore === 'loja01') {
+                    totals.loja01WeeklyTotal += revenue;
+                    if (isToday) totals.loja01DailyTotal += revenue;
+                } else if (barberStore === 'loja02') {
+                    totals.loja02WeeklyTotal += revenue;
+                    if (isToday) totals.loja02DailyTotal += revenue;
+                }
+
+                // Considera faturamento real apenas o que não é uso de assinatura/presente
+                if(t.paymentMethod !== 'Assinatura' && t.paymentMethod !== 'Cartão Presente') {
+                    totals.faturamentoTotalCurrentWeek += (t.value || 0);
+                }
+                totals.faturamentoTotalCurrentWeek += (t.productSaleValue || 0) + (t.planSaleValue || 0);
+            });
+        });
+    });
+
+    // Atualiza a UI
+    loja01WeeklyTotal.textContent = formatCurrency(totals.loja01WeeklyTotal);
+    loja02WeeklyTotal.textContent = formatCurrency(totals.loja02WeeklyTotal);
+    loja01DailyTotal.textContent = formatCurrency(totals.loja01DailyTotal);
+    loja02DailyTotal.textContent = formatCurrency(totals.loja02DailyTotal);
+
+    const rankedBarbersWeekly = Object.entries(barberWeeklyRevenue)
+        .map(([barberId, revenue]) => ({ name: barberNames[barberId] || 'Desconhecido', revenue }))
+        .sort((a, b) => b.revenue - a.revenue);
+        
+    barberRankingList.innerHTML = rankedBarbersWeekly.length 
+        ? rankedBarbersWeekly.map((b, i) => `<div class="flex justify-between items-center bg-gray-700/50 p-3 rounded-md"><span>${i+1}. ${b.name}</span><span class="font-bold text-lg text-green-400">${formatCurrency(b.revenue)}</span></div>`).join('') 
+        : '<p class="text-gray-500 text-center">Nenhum faturamento.</p>';
+  }
+
+  // --- O resto das funções (addTransaction, deleteTransaction, etc.) ---
+  // ... (Cole o resto do seu código JS a partir daqui, ele já estava correto)
+
+  document.addEventListener('DOMContentLoaded', initializeAppAndAuth);
+</script>
+
+</body>
+</html>

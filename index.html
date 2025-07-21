@@ -1415,18 +1415,3 @@
 </script>
 </body>
 </html>
-
-
-
-regras do firestore
-
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Exige que o usuário esteja logado para qualquer operação
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-

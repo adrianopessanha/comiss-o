@@ -527,7 +527,6 @@
   const weekDays = { 2: 'Terça', 3: 'Quarta', 4: 'Quinta', 5: 'Sexta', 6: 'Sábado' };
   const REAL_PAYMENT_METHODS_ADMIN = ['Dinheiro', 'Pix', 'Débito', 'Crédito'];
 
-  // NOVO: Referências para os elementos do relatório mensal
   let loginScreen, appContainer, barberSelector, mainContent, historySection, daySelector, addServiceTransactionBtn, addProductTransactionBtn, addPlanTransactionBtn, saveValeBtn, valeInput,
         dailyLog, dailyLogPlaceholder, transactionForm, editModal, closeEditModalBtn, saveEditBtn,
         editTransactionForm, closeWeekBtn, currentWeekSpan, historyTableBody, historyPlaceholder, summarySpans,
@@ -556,7 +555,6 @@
     return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
   }
   
-    // NOVO: Função para obter a data exata de um dia da semana, com base no ID da semana
     function getDateForDayOfWeek(weekId, dayIndex) {
         const [year, week] = weekId.split('-W').map(Number);
         const firstDayOfYear = new Date(year, 0, 1);
@@ -566,7 +564,7 @@
         const dayOfWeek = date.getDay();
         const diff = dayIndex - (dayOfWeek === 0 ? 7 : dayOfWeek);
         date.setDate(date.getDate() + diff);
-        return date.toISOString().split('T')[0]; // Retorna YYYY-MM-DD
+        return date.toISOString().split('T')[0];
     }
 
   function initializeDOMReferences() {
@@ -608,7 +606,6 @@
     };
     detalheAssinaturas = document.getElementById('detalheAssinaturas'); detalheCartaoPresente = document.getElementById('detalheCartaoPresente'); detalheDinheiro = document.getElementById('detalheDinheiro'); detalhePix = document.getElementById('detalhePix'); detalheDebito = document.getElementById('detalheDebito'); detalheCredito = document.getElementById('detalheCredito'); detalheTotalProdutos = document.getElementById('detalheTotalProdutos'); barberDetailsSection = document.getElementById('barberDetailsSection'); reportComissaoAssinaturasCartao = document.getElementById('reportComissaoAssinaturasCartao'); barberRankingList = document.getElementById('barberRankingList'); loja01DailyDinheiro = document.getElementById('loja01DailyDinheiro'); loja01DailyPix = document.getElementById('loja01DailyPix'); loja01DailyDebito = document.getElementById('loja01DailyDebito'); loja01DailyCredito = document.getElementById('loja01DailyCredito'); loja01WeeklyTotal = document.getElementById('loja01WeeklyTotal'); loja02DailyDinheiro = document.getElementById('loja02DailyDinheiro'); loja02DailyPix = document.getElementById('loja02DailyPix'); loja02DailyDebito = document.getElementById('loja02DailyDebito'); loja02DailyCredito = document.getElementById('loja02DailyCredito'); loja02WeeklyTotal = document.getElementById('loja02WeeklyTotal'); comissaoAssinaturas = document.getElementById('comissaoAssinaturas'); comissaoCartaoPresente = document.getElementById('comissaoCartaoPresente'); loja01DailyTotal = document.getElementById('loja01DailyTotal'); loja02DailyTotal = document.getElementById('loja02DailyTotal');
     
-    // NOVO: Referências para o relatório mensal
     reportYear = document.getElementById('reportYear');
     reportMonth = document.getElementById('reportMonth');
     generateMonthlyReportBtn = document.getElementById('generateMonthlyReportBtn');
@@ -666,11 +663,10 @@
     loginBtn.addEventListener('click', handleLogin);
   }
   
-    // NOVO: Preenche o seletor de ano e adiciona o listener ao botão de relatório
     function setupAdminReportControls() {
         const currentYear = new Date().getFullYear();
         reportYear.innerHTML = '';
-        for (let i = currentYear; i >= currentYear - 3; i--) { // Gera os últimos 4 anos
+        for (let i = currentYear; i >= currentYear - 3; i--) {
             reportYear.innerHTML += `<option value="${i}">${i}</option>`;
         }
         generateMonthlyReportBtn.addEventListener('click', generateMonthlyReport);
@@ -686,7 +682,7 @@
       listenToAdminReportData();
       barberDetailsSection.classList.add('hidden');
       setupAdminBarberSelector();
-      setupAdminReportControls(); // NOVO: Inicializa os controles do relatório mensal
+      setupAdminReportControls();
     } else { // Barber role
       adminReportSection.classList.add('hidden');
       closeWeekBtn.style.display = 'none';
@@ -708,7 +704,6 @@
 
   function setupAdminBarberSelector() {
     barberSelector.innerHTML = '<option value="">-- Visão Geral / Selecione um funcionário --</option>';
-    // NOVO: Ordena os barbeiros pelo nome
     const sortedBarbers = Object.values(users)
         .filter(u => u.role === 'barber')
         .sort((a, b) => a.name.localeCompare(b.name));
@@ -886,7 +881,6 @@
 
   async function addTransaction(type) {
     let newTransaction = null;
-    // NOVO: Adiciona a data exata à transação
     const transactionDate = getDateForDayOfWeek(currentWeekId, selectedDay);
 
     if (loggedInUser.barberId === 'barber-02' && (selectedBarberId === 'barber-03' || selectedBarberId === 'barber-06')) {
@@ -1019,7 +1013,6 @@
         return;
     }
     
-    // NOVO: Adiciona a data exata também na edição
     const transactionDate = getDateForDayOfWeek(currentWeekId, selectedDay);
 
     const serviceDescription = editTransactionForm.serviceDescription.value.trim();
@@ -1074,7 +1067,40 @@
     currentEditingTransactionId = null;
   }
   
-    // NOVO: Função principal para gerar o relatório mensal
+    // NOVO: Função para processar transações de uma fonte (aberta ou fechada)
+    function processTransactionsForReport(weeklyDetails, barberId, year, month, monthlyTotals, assinaturaTransactions, barberNamesMap) {
+        Object.values(weeklyDetails).forEach(dayData => {
+            const transactions = dayData.transactions || [];
+            transactions.forEach(t => {
+                if (!t.date) return;
+
+                const transactionDate = new Date(t.date + 'T00:00:00');
+                if (transactionDate.getFullYear() === year && transactionDate.getMonth() + 1 === month) {
+                    if (t.value > 0 && REAL_PAYMENT_METHODS_ADMIN.includes(t.paymentMethod)) {
+                        monthlyTotals[t.paymentMethod] += t.value;
+                    }
+                    if (t.productSaleValue > 0 && REAL_PAYMENT_METHODS_ADMIN.includes(t.productPaymentMethod)) {
+                        monthlyTotals[t.productPaymentMethod] += t.productSaleValue;
+                    }
+                    if (t.planSaleValue > 0 && REAL_PAYMENT_METHODS_ADMIN.includes(t.planSalePaymentMethod)) {
+                        monthlyTotals[t.planSalePaymentMethod] += t.planSaleValue;
+                    }
+
+                    if (t.paymentMethod === 'Assinatura' && t.value > 0) {
+                        assinaturaTransactions.push({
+                            date: transactionDate.toLocaleDateString('pt-BR'),
+                            barberName: barberNamesMap[barberId] || 'Desconhecido',
+                            clientName: t.clientName || 'N/A',
+                            service: t.serviceDescription,
+                            value: t.value
+                        });
+                    }
+                }
+            });
+        });
+    }
+
+    // ALTERAÇÃO PRINCIPAL: Função agora busca em SEMANAS ABERTAS e FECHADAS
     async function generateMonthlyReport() {
         const year = parseInt(reportYear.value);
         const month = parseInt(reportMonth.value);
@@ -1089,51 +1115,24 @@
         monthlyReportResults.classList.add('hidden');
 
         try {
-            const closingsQuery = query(collectionGroup(db, 'weekly_closings'));
-            const querySnapshot = await getDocs(closingsQuery);
-            
             const barberNamesMap = Object.fromEntries(Object.values(users).filter(u => u.barberId).map(u => [u.barberId, u.name]));
-
             const monthlyTotals = { Dinheiro: 0, Pix: 0, Débito: 0, Crédito: 0 };
             const assinaturaTransactions = [];
-            
-            querySnapshot.forEach(doc => {
-                const closingData = doc.data();
+
+            // 1. Busca em semanas FECHADAS (weekly_closings)
+            const closingsQuery = query(collectionGroup(db, 'weekly_closings'));
+            const closingsSnapshot = await getDocs(closingsQuery);
+            closingsSnapshot.forEach(doc => {
                 const barberId = doc.ref.parent.parent.id;
-                const weeklyDetails = closingData.details || {};
+                processTransactionsForReport(doc.data().details, barberId, year, month, monthlyTotals, assinaturaTransactions, barberNamesMap);
+            });
 
-                Object.values(weeklyDetails).forEach(dayData => {
-                    const transactions = dayData.transactions || [];
-                    transactions.forEach(t => {
-                        if (!t.date) return; // Ignora dados antigos sem data
-
-                        const transactionDate = new Date(t.date + 'T00:00:00'); // Adiciona T00:00:00 para evitar problemas de fuso
-                        if (transactionDate.getFullYear() === year && transactionDate.getMonth() + 1 === month) {
-                            
-                            // 1. Calcula Faturamento Real
-                            if (t.value > 0 && REAL_PAYMENT_METHODS_ADMIN.includes(t.paymentMethod)) {
-                                monthlyTotals[t.paymentMethod] += t.value;
-                            }
-                            if (t.productSaleValue > 0 && REAL_PAYMENT_METHODS_ADMIN.includes(t.productPaymentMethod)) {
-                                monthlyTotals[t.productPaymentMethod] += t.productSaleValue;
-                            }
-                             if (t.planSaleValue > 0 && REAL_PAYMENT_METHODS_ADMIN.includes(t.planSalePaymentMethod)) {
-                                monthlyTotals[t.planSalePaymentMethod] += t.planSaleValue;
-                            }
-
-                            // 2. Coleta serviços de Assinatura
-                            if (t.paymentMethod === 'Assinatura' && t.value > 0) {
-                                assinaturaTransactions.push({
-                                    date: transactionDate.toLocaleDateString('pt-BR'),
-                                    barberName: barberNamesMap[barberId] || 'Desconhecido',
-                                    clientName: t.clientName || 'N/A',
-                                    service: t.serviceDescription,
-                                    value: t.value
-                                });
-                            }
-                        }
-                    });
-                });
+            // 2. Busca em semanas ABERTAS (weekly_entries)
+            const entriesQuery = query(collectionGroup(db, 'weekly_entries'));
+            const entriesSnapshot = await getDocs(entriesQuery);
+            entriesSnapshot.forEach(doc => {
+                const barberId = doc.ref.parent.parent.id;
+                processTransactionsForReport(doc.data(), barberId, year, month, monthlyTotals, assinaturaTransactions, barberNamesMap);
             });
 
             renderMonthlyReport(monthlyTotals, assinaturaTransactions, year, month);
@@ -1147,12 +1146,10 @@
         }
     }
 
-    // NOVO: Função para renderizar os resultados do relatório na tela
     function renderMonthlyReport(totals, assinaturas, year, month) {
         const monthName = reportMonth.options[reportMonth.selectedIndex].text;
         monthlyReportTitle.textContent = `Resultados para ${monthName} de ${year}`;
         
-        // Renderiza Faturamento Real
         monthlyReportDinheiro.textContent = formatCurrency(totals.Dinheiro);
         monthlyReportPix.textContent = formatCurrency(totals.Pix);
         monthlyReportDebito.textContent = formatCurrency(totals.Débito);
@@ -1160,7 +1157,6 @@
         const totalReal = totals.Dinheiro + totals.Pix + totals.Debito + totals.Crédito;
         monthlyReportTotal.textContent = formatCurrency(totalReal);
 
-        // Renderiza Tabela de Assinaturas
         const totalAssinaturaValue = assinaturas.reduce((acc, t) => acc + t.value, 0);
         monthlyReportAssinaturaCount.textContent = assinaturas.length;
         monthlyReportAssinaturaValue.textContent = formatCurrency(totalAssinaturaValue);
@@ -1168,7 +1164,7 @@
         monthlyReportAssinaturaTableBody.innerHTML = '';
         if (assinaturas.length > 0) {
             monthlyReportAssinaturaPlaceholder.style.display = 'none';
-            assinaturas.sort((a,b) => new Date(a.date.split('/').reverse().join('-')) - new Date(b.date.split('/').reverse().join('-'))); // Ordena por data
+            assinaturas.sort((a,b) => new Date(a.date.split('/').reverse().join('-')) - new Date(b.date.split('/').reverse().join('-')));
             assinaturas.forEach(t => {
                 const tr = document.createElement('tr');
                 tr.className = 'bg-gray-800 border-b border-gray-700 hover:bg-gray-700/80';
@@ -1409,5 +1405,3 @@
 
   document.addEventListener('DOMContentLoaded', initializeAppAndAuth);
 </script>
-</body>
-</html>

@@ -380,10 +380,10 @@
             <h4 class="font-semibold text-md text-cyan-300">Venda de Produtos</h4>
             <input type="text" id="editProductDescription" placeholder="Descrição do Produto (opcional)" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="number" id="editProductsSold" placeholder="Qtd. Produtos Vendidos" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
-                <input type="number" id="editProductSaleValue" placeholder="Valor Total dos Produtos (R$)" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+                <input type="number" id="editProductsSold" placeholder="Qtd. Produtos Vendidos" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
+                <input type="number" id="editProductSaleValue" placeholder="Valor Total dos Produtos (R$)" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
             </div>
-            <select id="editProductPaymentMethod" class="entry-input w-full bg-gray-600 border border-gray-500 rounded-md px-3 py-2">
+            <select id="editProductPaymentMethod" class="entry-input w-full bg-gray-700 border border-gray-500 rounded-md px-3 py-2">
                 <option value="">Forma de Pagamento Produto</option>
                 <option value="Dinheiro">Dinheiro</option>
                 <option value="Pix">Pix</option>
@@ -445,7 +445,8 @@
     "veloso@exemplo.com": { password: "123", role: "barber", barberId: "barber-03", name: "Veloso" },
     "Wellington@exemplo.com": { password: "123", role: "barber", barberId: "barber-04", name: "Wellington" },
     "jonata@exemplo.com": { password: "123", role: "barber", barberId: "barber-05", name: "Jonata Silva" },
-    "Mauro@exemplo.com": { password: "123", role: "barber", barberId: "barber-06", name: "Mauro" }
+    "Mauro@exemplo.com": { password: "123", role: "barber", barberId: "barber-06", name: "Mauro" },
+    "wallace@exemplo.com": { password: "123", role: "barber", barberId: "barber-07", name: "Wallace Dias" } // NOVO BARBEIRO
   };
 
   // Map barbers to stores
@@ -455,7 +456,8 @@
     "barber-03": "loja01", // Veloso
     "barber-04": "loja02", // Wellington
     "barber-05": "loja02", // Jonata
-    "barber-06": "loja01"  // Mauro
+    "barber-06": "loja01",  // Mauro
+    "barber-07": "loja02"   // NOVO BARBEIRO (Wallace)
   };
 
   let db;
@@ -622,7 +624,7 @@
   }
 
   function handleLogin() {
-    const email = emailInput.value;
+    const email = emailInput.value.toLowerCase(); // Use toLowerCase para consistência
     const password = passwordInput.value;
     const user = users[email];
 

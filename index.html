@@ -140,7 +140,7 @@
                 <p class="text-gray-400">serviços</p>
                 <p class="text-lg font-semibold text-cyan-400 mt-1" id="reportValorCartaoPresente">R$ 0,00</p>
             </div>
-            <div class="bg-gray-700 p-4 rounded-lg md:col-span-2 lg:col-span-4 flex flex-col justify-center items-center">
+            <div class="lg:col-span-2 bg-gray-700 p-4 rounded-lg md:col-span-2 lg:col-span-4 flex flex-col justify-center items-center">
                 <h3 class="text-lg font-medium text-gray-300">Comissão de Assinaturas/Cartão Presente (Semana Atual)</h3>
                 <p id="reportComissaoAssinaturasCartao" class="text-3xl font-bold text-green-400 mt-2">R$ 0,00</p>
             </div>
@@ -153,6 +153,7 @@
                     <p class="flex justify-between"><span>Crédito:</span> <span id="reportFaturamentoDiarioCredito" class="font-semibold text-teal-400">R$ 0,00</span></p>
                     <hr class="border-gray-600"/>
                     <p class="flex justify-between items-center pt-2"><span class="font-medium text-gray-300">Total:</span><span id="reportFaturamentoDiarioTotal" class="text-xl font-bold text-teal-400">R$ 0,00</span></p>
+                    <div id="dailyReportStatus" class="text-center text-gray-500 text-sm mt-1"></div> <!-- NEW STATUS MESSAGE -->
                 </div>
             </div>
             <div class="lg:col-span-2 bg-gray-700 p-4 rounded-lg flex flex-col">
@@ -526,7 +527,7 @@
         loja02DailyDinheiro, loja02DailyPix, loja02DailyDebito, loja02DailyCredito, loja02WeeklyTotal,
         reportYear, reportMonth, generateMonthlyReportBtn, monthlyReportResults, monthlyReportTitle,
         monthlyReportDinheiro, monthlyReportPix, monthlyReportDebito, monthlyReportCredito, monthlyReportTotal,
-        monthlyReportAssinaturaCount, monthlyReportAssinaturaValue;
+        monthlyReportAssinaturaCount, monthlyReportAssinaturaValue, dailyReportStatus; // ADDED dailyReportStatus
 
   let comissaoAssinaturas, comissaoCartaoPresente;
   let reportFaturamentoDiarioTotal;
@@ -607,6 +608,7 @@
     monthlyReportTotal = document.getElementById('monthlyReportTotal');
     monthlyReportAssinaturaCount = document.getElementById('monthlyReportAssinaturaCount');
     monthlyReportAssinaturaValue = document.getElementById('monthlyReportAssinaturaValue');
+    dailyReportStatus = document.getElementById('dailyReportStatus'); // ADDED THIS LINE
   }
 
   async function initializeAppAndAuth() {
@@ -1246,21 +1248,27 @@
 
   function calculateAdminReport(allEntriesData) {
     const totals = { faturamentoTotalCurrentWeek: 0, dinheiro: 0, pix: 0, debito: 0, credito: 0, qtdAssinaturas: 0, valorAssinaturas: 0, qtdCartaoPresente: 0, valorCartaoPresente: 0, comissaoAssinaturasCartao: 0, faturamentoDiarioDinheiro: 0, faturamentoDiarioPix: 0, faturamentoDiarioDebito: 0, faturamentoDiarioCredito: 0, loja01DailyDinheiro: 0, loja01DailyPix: 0, loja01DailyDebito: 0, loja01DailyCredito: 0, loja01WeeklyTotal: 0, loja02DailyDinheiro: 0, loja02DailyPix: 0, loja02DailyDebito: 0, loja02DailyCredito: 0, loja02WeeklyTotal: 0, };
-    const barberWeeklyRevenue = {}; const today = new Date(); const currentDayOfWeek = today.getDay(); const currentWeekIdCalculated = getWeekId(today);
+    const barberWeeklyRevenue = {};
+    const today = new Date();
+    const currentDayOfWeek = today.getDay(); // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
+    const currentDayName = weekDays[currentDayOfWeek]; // Será 'Terça', 'Quarta', etc., ou 'undefined'
+    const currentWeekIdCalculated = getWeekId(today);
     const barberNames = Object.fromEntries(Object.values(users).filter(u => u.role === 'barber').map(u => [u.barberId, u.name]));
     for (const item of allEntriesData) {
         const barberId = item.barberId; const barberStore = barberStoreMap[barberId];
         if (item.id === currentWeekIdCalculated) {
             if (!barberWeeklyRevenue[barberId]) barberWeeklyRevenue[barberId] = 0;
             for (const dayKey in weekDays) { 
-                const dayData = item.data[weekDays[dayKey]] || {}; const transactions = dayData.transactions || [];
+                const dayName = weekDays[dayKey]; // Ex: 'Terça'
+                const dayData = item.data[dayName] || {}; const transactions = dayData.transactions || [];
                 for (const t of transactions) {
                     if (t.paymentMethod === 'Assinatura') { totals.qtdAssinaturas++; totals.valorAssinaturas += t.value; totals.comissaoAssinaturasCartao += t.value * 0.50; }
                     else if (t.paymentMethod === 'Cartão Presente') { totals.qtdCartaoPresente++; totals.valorCartaoPresente += t.value; totals.comissaoAssinaturasCartao += t.value * 0.50; }
                     if (t.serviceDescription && t.value > 0) {
                         barberWeeklyRevenue[barberId] += t.value;
                         if (REAL_PAYMENT_METHODS_ADMIN.includes(t.paymentMethod)) { totals.faturamentoTotalCurrentWeek += t.value; }
-                        if (weekDays[currentDayOfWeek] === weekDays[dayKey]) {
+                        // ATENÇÃO: Verifica se o dia da transação é o dia atual (e se o dia atual é um dia ativo na barbearia)
+                        if (currentDayName && dayName === currentDayName) {
                             switch (t.paymentMethod) { case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.value; break; case 'Pix': totals.faturamentoDiarioPix += t.value; break; case 'Débito': totals.faturamentoDiarioDebito += t.value; break; case 'Crédito': totals.faturamentoDiarioCredito += t.value; break; }
                             if (barberStore === 'loja01') { switch (t.paymentMethod) { case 'Dinheiro': totals.loja01DailyDinheiro += t.value; break; case 'Pix': totals.loja01DailyPix += t.value; break; case 'Débito': totals.loja01DailyDebito += t.value; break; case 'Crédito': totals.loja01DailyCredito += t.value; break; } }
                             else if (barberStore === 'loja02') { switch (t.paymentMethod) { case 'Dinheiro': totals.loja02DailyDinheiro += t.value; break; case 'Pix': totals.loja02DailyPix += t.value; break; case 'Débito': totals.loja02DailyDebito += t.value; break; case 'Crédito': totals.loja02DailyCredito += t.value; break; } }
@@ -1271,7 +1279,8 @@
                     if (t.productDescription && t.products > 0 && t.productSaleValue > 0 && t.productPaymentMethod) {
                         barberWeeklyRevenue[barberId] += t.productSaleValue;
                         if (REAL_PAYMENT_METHODS_ADMIN.includes(t.productPaymentMethod)) { totals.faturamentoTotalCurrentWeek += t.productSaleValue; }
-                        if (weekDays[currentDayOfWeek] === weekDays[dayKey]) {
+                        // ATENÇÃO: Verifica se o dia da transação é o dia atual (e se o dia atual é um dia ativo na barbearia)
+                        if (currentDayName && dayName === currentDayName) {
                             switch (t.productPaymentMethod) { case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.productSaleValue; break; case 'Pix': totals.faturamentoDiarioPix += t.productSaleValue; break; case 'Débito': totals.faturamentoDiarioDebito += t.productSaleValue; break; case 'Crédito': totals.faturamentoDiarioCredito += t.productSaleValue; break; }
                             if (barberStore === 'loja01') { switch (t.productPaymentMethod) { case 'Dinheiro': totals.loja01DailyDinheiro += t.productSaleValue; break; case 'Pix': totals.loja01DailyPix += t.productSaleValue; break; case 'Débito': totals.loja01DailyDebito += t.productSaleValue; break; case 'Crédito': totals.loja01DailyCredito += t.productSaleValue; break; } }
                             else if (barberStore === 'loja02') { switch (t.productPaymentMethod) { case 'Dinheiro': totals.loja02DailyDinheiro += t.productSaleValue; break; case 'Pix': totals.loja02DailyPix += t.productSaleValue; break; case 'Débito': totals.loja02DailyDebito += t.productSaleValue; break; case 'Crédito': totals.loja02DailyCredito += t.productSaleValue; break; } }
@@ -1281,7 +1290,8 @@
                     }
                     if (t.planSaleType && t.planSaleValue > 0 && t.planSalePaymentMethod) {
                         if (REAL_PAYMENT_METHODS_ADMIN.includes(t.planSalePaymentMethod)) { totals.faturamentoTotalCurrentWeek += t.planSaleValue; }
-                        if (weekDays[currentDayOfWeek] === weekDays[dayKey]) {
+                        // ATENÇÃO: Verifica se o dia da transação é o dia atual (e se o dia atual é um dia ativo na barbearia)
+                        if (currentDayName && dayName === currentDayName) {
                             switch (t.planSalePaymentMethod) { case 'Dinheiro': totals.faturamentoDiarioDinheiro += t.planSaleValue; break; case 'Pix': totals.faturamentoDiarioPix += t.planSaleValue; break; case 'Débito': totals.faturamentoDiarioDebito += t.planSaleValue; break; case 'Crédito': totals.faturamentoDiarioCredito += t.planSaleValue; break; }
                             if (barberStore === 'loja01') { switch (t.planSalePaymentMethod) { case 'Dinheiro': totals.loja01DailyDinheiro += t.planSaleValue; break; case 'Pix': totals.loja01DailyPix += t.planSaleValue; break; case 'Débito': totals.loja01DailyDebito += t.planSaleValue; break; case 'Crédito': totals.loja01DailyCredito += t.planSaleValue; break; } }
                             else if (barberStore === 'loja02') { switch (t.planSalePaymentMethod) { case 'Dinheiro': totals.loja02DailyDinheiro += t.planSaleValue; break; case 'Pix': totals.loja02DailyPix += t.planSaleValue; break; case 'Débito': totals.loja02DailyDebito += t.planSaleValue; break; case 'Crédito': totals.loja02DailyCredito += t.planSaleValue; break; } }
@@ -1297,6 +1307,16 @@
     adminReportSpans.reportFaturamentoDiarioDinheiro.textContent = formatCurrency(totals.faturamentoDiarioDinheiro); adminReportSpans.reportFaturamentoDiarioPix.textContent = formatCurrency(totals.faturamentoDiarioPix); adminReportSpans.reportFaturamentoDiarioDebito.textContent = formatCurrency(totals.faturamentoDiarioDebito); adminReportSpans.reportFaturamentoDiarioCredito.textContent = formatCurrency(totals.faturamentoDiarioCredito);
     const totalDailyAdmin = totals.faturamentoDiarioDinheiro + totals.faturamentoDiarioPix + totals.faturamentoDiarioDebito + totals.faturamentoDiarioCredito;
     adminReportSpans.reportFaturamentoDiarioTotal.textContent = formatCurrency(totalDailyAdmin);
+
+    // Adiciona mensagem de status para o faturamento diário
+    if (dailyReportStatus) {
+        if (!currentDayName) { // Se hoje for Domingo ou Segunda
+            dailyReportStatus.textContent = `(Hoje não é um dia de faturamento ativo: ${today.toLocaleDateString('pt-BR', { weekday: 'long' })})`;
+        } else {
+            dailyReportStatus.textContent = ''; // Limpa a mensagem se for um dia ativo
+        }
+    }
+
     adminReportSpans.faturamentoTotal.textContent = formatCurrency(totals.faturamentoTotalCurrentWeek); adminReportSpans.dinheiro.textContent = formatCurrency(totals.dinheiro); adminReportSpans.pix.textContent = formatCurrency(totals.pix); adminReportSpans.debito.textContent = formatCurrency(totals.debito); adminReportSpans.credito.textContent = formatCurrency(totals.credito); adminReportSpans.qtdAssinaturas.textContent = totals.qtdAssinaturas; adminReportSpans.valorAssinaturas.textContent = formatCurrency(totals.valorAssinaturas); adminReportSpans.qtdCartaoPresente.textContent = totals.qtdCartaoPresente; adminReportSpans.valorCartaoPresente.textContent = formatCurrency(totals.valorCartaoPresente); reportComissaoAssinaturasCartao.textContent = formatCurrency(totals.comissaoAssinaturasCartao);
     loja01DailyDinheiro.textContent = formatCurrency(totals.loja01DailyDinheiro); loja01DailyPix.textContent = formatCurrency(totals.loja01DailyPix); loja01DailyDebito.textContent = formatCurrency(totals.loja01DailyDebito); loja01DailyCredito.textContent = formatCurrency(totals.loja01DailyCredito); loja01WeeklyTotal.textContent = formatCurrency(totals.loja01WeeklyTotal); const totalDailyLoja01 = totals.loja01DailyDinheiro + totals.loja01DailyPix + totals.loja01DailyDebito + totals.loja01DailyCredito; loja01DailyTotal.textContent = formatCurrency(totalDailyLoja01);
     loja02DailyDinheiro.textContent = formatCurrency(totals.loja02DailyDinheiro); loja02DailyPix.textContent = formatCurrency(totals.loja02DailyPix); loja02DailyDebito.textContent = formatCurrency(totals.loja02DailyDebito); loja02DailyCredito.textContent = formatCurrency(totals.loja02DailyCredito); loja02WeeklyTotal.textContent = formatCurrency(totals.loja02WeeklyTotal); const totalDailyLoja02 = totals.loja02DailyDinheiro + totals.loja02DailyPix + totals.loja02DailyDebito + totals.loja02DailyCredito; loja02DailyTotal.textContent = formatCurrency(totalDailyLoja02);

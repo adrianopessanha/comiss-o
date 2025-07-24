@@ -47,11 +47,11 @@
       <p id="currentWeek" class="text-cyan-500 font-semibold mt-2"></p>
       <p id="welcomeMessage" class="text-white mt-2"></p>
     </header>
-
+    <!-- Bloco de Relatório do Administrador CORRIGIDO -->
     <div id="admin-report-section" class="hidden bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-700 mb-8">
         <h2 class="text-2xl font-semibold mb-4 text-center text-cyan-400">📊 Relatórios da Barbearia</h2>
 
-        <!-- NOVO: Controles do Relatório Mensal -->
+        <!-- NOVO: Controles do Relatório Mensal (Mantido) -->
         <div class="bg-gray-700/50 p-4 rounded-lg border border-gray-600 mb-8">
             <h3 class="text-xl font-semibold text-center text-purple-300 mb-4">Relatório Mensal Consolidado</h3>
             <div class="flex flex-wrap justify-center items-center gap-4">
@@ -81,10 +81,8 @@
                     <i class="fa-solid fa-search"></i> Gerar Relatório
                 </button>
             </div>
-             <!-- NOVO: Resultados do Relatório Mensal -->
             <div id="monthly-report-results" class="hidden mt-6 space-y-6">
                 <h3 id="monthlyReportTitle" class="text-xl font-semibold text-center text-purple-300"></h3>
-                <!-- Faturamento Real Mensal -->
                 <div>
                     <h4 class="text-lg font-medium text-gray-200 mb-2">Faturamento Real do Mês</h4>
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
@@ -95,25 +93,16 @@
                         <div class="bg-cyan-800/50 p-3 rounded-lg col-span-2 md:col-span-1"><span class="block text-sm text-cyan-200">Total Real</span><span id="monthlyReportTotal" class="font-bold text-lg text-cyan-300"></span></div>
                     </div>
                 </div>
-                <!-- Detalhamento de Assinaturas -->
                 <div>
                     <h4 class="text-lg font-medium text-gray-200 mb-2">Serviços Pagos com Assinatura no Mês</h4>
-                    <p class="text-gray-400 mb-3">Total: <span id="monthlyReportAssinaturaCount" class="font-semibold text-white">0</span> serviços, somando <span id="monthlyReportAssinaturaValue" class="font-semibold text-white">R$ 0,00</span></p>
-                    <div class="overflow-x-auto max-h-96">
-                        <table class="w-full text-sm text-left text-gray-300">
-                            <thead class="text-xs text-cyan-400 uppercase bg-gray-700 sticky top-0">
-                                <tr>
-                                    <th scope="col" class="px-4 py-3">Data</th>
-                                    <th scope="col" class="px-4 py-3">Barbeiro</th>
-                                    <th scope="col" class="px-4 py-3">Cliente</th>
-                                    <th scope="col" class="px-4 py-3">Serviço</th>
-                                    <th scope="col" class="px-4 py-3 text-right">Valor</th>
-                                </tr>
-                            </thead>
-                            <tbody id="monthlyReportAssinaturaTableBody"></tbody>
-                        </table>
-                        <div id="monthlyReportAssinaturaPlaceholder" class="text-center py-10 text-gray-500">
-                            <p>Nenhum serviço com assinatura encontrado para este mês.</p>
+                    <div class="bg-gray-900/50 p-4 rounded-lg flex justify-around items-center text-center">
+                        <div>
+                            <span class="block text-sm text-gray-400">Nº de Serviços</span>
+                            <span id="monthlyReportAssinaturaCount" class="font-bold text-xl text-white">0</span>
+                        </div>
+                        <div>
+                            <span class="block text-sm text-gray-400">Valor Total</span>
+                            <span id="monthlyReportAssinaturaValue" class="font-bold text-xl text-white">R$ 0,00</span>
                         </div>
                     </div>
                 </div>
@@ -122,9 +111,9 @@
 
         <hr class="border-gray-600 my-8">
         
+        <!-- RESTAURADO: Relatórios Semanais -->
         <h3 class="text-xl font-semibold text-center text-cyan-300 mb-4">Visão Geral da Semana Atual</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-center">
-            <!-- Cards semanais existentes... -->
             <div class="bg-gray-700 p-4 rounded-lg">
                 <h3 class="text-lg font-medium text-gray-300 mb-2">Faturamento Real (Semana Atual)</h3>
                 <div class="space-y-2 text-left">

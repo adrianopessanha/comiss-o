@@ -526,7 +526,7 @@
         loja02DailyDinheiro, loja02DailyPix, loja02DailyDebito, loja02DailyCredito, loja02WeeklyTotal,
         reportYear, reportMonth, generateMonthlyReportBtn, monthlyReportResults, monthlyReportTitle,
         monthlyReportDinheiro, monthlyReportPix, monthlyReportDebito, monthlyReportCredito, monthlyReportTotal,
-        monthlyReportAssinaturaCount, monthlyReportAssinaturaValue, monthlyReportAssinaturaTableBody, monthlyReportAssinaturaPlaceholder;
+        monthlyReportAssinaturaCount, monthlyReportAssinaturaValue;
 
   let comissaoAssinaturas, comissaoCartaoPresente;
   let reportFaturamentoDiarioTotal;
@@ -607,8 +607,6 @@
     monthlyReportTotal = document.getElementById('monthlyReportTotal');
     monthlyReportAssinaturaCount = document.getElementById('monthlyReportAssinaturaCount');
     monthlyReportAssinaturaValue = document.getElementById('monthlyReportAssinaturaValue');
-    monthlyReportAssinaturaTableBody = document.getElementById('monthlyReportAssinaturaTableBody');
-    monthlyReportAssinaturaPlaceholder = document.getElementById('monthlyReportAssinaturaPlaceholder');
   }
 
   async function initializeAppAndAuth() {
@@ -1056,7 +1054,6 @@
     currentEditingTransactionId = null;
   }
   
-    // NOVO: Função para processar transações de uma fonte (aberta ou fechada)
     function processTransactionsForReport(weeklyDetails, barberId, year, month, monthlyTotals, assinaturaTransactions, barberNamesMap) {
         Object.values(weeklyDetails).forEach(dayData => {
             const transactions = dayData.transactions || [];
@@ -1065,31 +1062,25 @@
 
                 const transactionDate = new Date(t.date + 'T00:00:00');
                 if (transactionDate.getFullYear() === year && transactionDate.getMonth() + 1 === month) {
+                    
                     if (t.value > 0 && REAL_PAYMENT_METHODS_ADMIN.includes(t.paymentMethod)) {
-                        monthlyTotals[t.paymentMethod] += t.value;
+                        monthlyTotals[t.paymentMethod] += (t.value || 0);
                     }
                     if (t.productSaleValue > 0 && REAL_PAYMENT_METHODS_ADMIN.includes(t.productPaymentMethod)) {
-                        monthlyTotals[t.productPaymentMethod] += t.productSaleValue;
+                        monthlyTotals[t.productPaymentMethod] += (t.productSaleValue || 0);
                     }
                     if (t.planSaleValue > 0 && REAL_PAYMENT_METHODS_ADMIN.includes(t.planSalePaymentMethod)) {
-                        monthlyTotals[t.planSalePaymentMethod] += t.planSaleValue;
+                        monthlyTotals[t.planSalePaymentMethod] += (t.planSaleValue || 0);
                     }
 
                     if (t.paymentMethod === 'Assinatura' && t.value > 0) {
-                        assinaturaTransactions.push({
-                            date: transactionDate.toLocaleDateString('pt-BR'),
-                            barberName: barberNamesMap[barberId] || 'Desconhecido',
-                            clientName: t.clientName || 'N/A',
-                            service: t.serviceDescription,
-                            value: t.value
-                        });
+                        assinaturaTransactions.push({ value: (t.value || 0) });
                     }
                 }
             });
         });
     }
 
-    // ALTERAÇÃO PRINCIPAL: Função agora busca em SEMANAS ABERTAS e FECHADAS
     async function generateMonthlyReport() {
         const year = parseInt(reportYear.value);
         const month = parseInt(reportMonth.value);
@@ -1108,7 +1099,6 @@
             const monthlyTotals = { Dinheiro: 0, Pix: 0, Débito: 0, Crédito: 0 };
             const assinaturaTransactions = [];
 
-            // 1. Busca em semanas FECHADAS (weekly_closings)
             const closingsQuery = query(collectionGroup(db, 'weekly_closings'));
             const closingsSnapshot = await getDocs(closingsQuery);
             closingsSnapshot.forEach(doc => {
@@ -1116,7 +1106,6 @@
                 processTransactionsForReport(doc.data().details, barberId, year, month, monthlyTotals, assinaturaTransactions, barberNamesMap);
             });
 
-            // 2. Busca em semanas ABERTAS (weekly_entries)
             const entriesQuery = query(collectionGroup(db, 'weekly_entries'));
             const entriesSnapshot = await getDocs(entriesQuery);
             entriesSnapshot.forEach(doc => {
@@ -1135,41 +1124,29 @@
         }
     }
 
+    // CORREÇÃO: Função renderMonthlyReport corrigida
     function renderMonthlyReport(totals, assinaturas, year, month) {
         const monthName = reportMonth.options[reportMonth.selectedIndex].text;
         monthlyReportTitle.textContent = `Resultados para ${monthName} de ${year}`;
         
-        monthlyReportDinheiro.textContent = formatCurrency(totals.Dinheiro);
-        monthlyReportPix.textContent = formatCurrency(totals.Pix);
-        monthlyReportDebito.textContent = formatCurrency(totals.Débito);
-        monthlyReportCredito.textContent = formatCurrency(totals.Crédito);
-        const totalReal = totals.Dinheiro + totals.Pix + totals.Debito + totals.Crédito;
+        // Garante que todos os totais sejam números antes de exibir e somar
+        const totalDinheiro = totals.Dinheiro || 0;
+        const totalPix = totals.Pix || 0;
+        const totalDebito = totals.Débito || 0;
+        const totalCredito = totals.Crédito || 0;
+
+        monthlyReportDinheiro.textContent = formatCurrency(totalDinheiro);
+        monthlyReportPix.textContent = formatCurrency(totalPix);
+        monthlyReportDebito.textContent = formatCurrency(totalDebito);
+        monthlyReportCredito.textContent = formatCurrency(totalCredito);
+        
+        const totalReal = totalDinheiro + totalPix + totalDebito + totalCredito;
         monthlyReportTotal.textContent = formatCurrency(totalReal);
 
         const totalAssinaturaValue = assinaturas.reduce((acc, t) => acc + t.value, 0);
         monthlyReportAssinaturaCount.textContent = assinaturas.length;
         monthlyReportAssinaturaValue.textContent = formatCurrency(totalAssinaturaValue);
         
-        monthlyReportAssinaturaTableBody.innerHTML = '';
-        if (assinaturas.length > 0) {
-            monthlyReportAssinaturaPlaceholder.style.display = 'none';
-            assinaturas.sort((a,b) => new Date(a.date.split('/').reverse().join('-')) - new Date(b.date.split('/').reverse().join('-')));
-            assinaturas.forEach(t => {
-                const tr = document.createElement('tr');
-                tr.className = 'bg-gray-800 border-b border-gray-700 hover:bg-gray-700/80';
-                tr.innerHTML = `
-                    <td class="px-4 py-3">${t.date}</td>
-                    <td class="px-4 py-3">${t.barberName}</td>
-                    <td class="px-4 py-3">${t.clientName}</td>
-                    <td class="px-4 py-3">${t.service}</td>
-                    <td class="px-4 py-3 text-right font-medium">${formatCurrency(t.value)}</td>
-                `;
-                monthlyReportAssinaturaTableBody.appendChild(tr);
-            });
-        } else {
-            monthlyReportAssinaturaPlaceholder.style.display = 'block';
-        }
-
         monthlyReportResults.classList.remove('hidden');
     }
 

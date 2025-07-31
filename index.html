@@ -496,7 +496,7 @@
   // Map barbers to stores
   const barberStoreMap = {
     "barber-01": "loja02", "barber-02": "loja01", "barber-03": "loja01", "barber-04": "loja02",
-    "barber-05": "loja02", "barber-06": "loja01", "barber-07": "loja02"
+    "barber-05": "loja02", "barber-06": "loja01", "barber-07": "loja01"
   };
 
   let db;
@@ -612,8 +612,8 @@
   }
 
   async function initializeAppAndAuth() {
-    if (firebaseConfig.apiKey.includes("AIzaSyBCfdVci2RFEearjQzByEysTXtV6D4Tofs")) {
-      alert("ATENÇÃO: A configuração do Firebase parece ser um placeholder. Por favor, substitua com as suas chaves de API reais.");
+    if (firebaseConfig.apiKey.includes("")) {
+      alert("");
     }
     try {
       const app = initializeApp(firebaseConfig);

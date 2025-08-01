@@ -1126,12 +1126,10 @@
         }
     }
 
-    // CORREÇÃO: Função renderMonthlyReport corrigida
     function renderMonthlyReport(totals, assinaturas, year, month) {
         const monthName = reportMonth.options[reportMonth.selectedIndex].text;
         monthlyReportTitle.textContent = `Resultados para ${monthName} de ${year}`;
         
-        // Garante que todos os totais sejam números antes de exibir e somar
         const totalDinheiro = totals.Dinheiro || 0;
         const totalPix = totals.Pix || 0;
         const totalDebito = totals.Débito || 0;
@@ -1183,23 +1181,45 @@
 
   function calculateWeeklySummary() {
     let totalBrutoSemana = 0; let comissaoServicosSemana = 0; let comissaoAssinaturasSemana = 0; let comissaoCartaoPresenteSemana = 0; let totalValeSemana = 0; let totalProdutosVendidosSemana = 0;
+    
     let detalheAssinaturasDia = 0, detalheCartaoPresenteDia = 0, detalheDinheiroDia = 0, detalhePixDia = 0, detalheDebitoDia = 0, detalheCreditoDia = 0, detalheTotalProdutosDia = 0;
+    
     const dayDataForSelectedDay = weeklyData[weekDays[selectedDay]] || { transactions: [], vale: 0 };
     const transactionsForSelectedDay = dayDataForSelectedDay.transactions || [];
+
     transactionsForSelectedDay.forEach(t => {
         detalheTotalProdutosDia += t.products || 0;
+
         if (t.serviceDescription && t.value > 0) {
-            switch (t.paymentMethod) { case 'Dinheiro': detalheDinheiroDia += t.value; break; case 'Pix': detalhePixDia += t.value; break; case 'Débito': detalheDebitoDia += t.value; break; case 'Crédito': detalheCreditoDia += t.value; break; }
+            switch (t.paymentMethod) {
+                case 'Dinheiro': detalheDinheiroDia += t.value; break;
+                case 'Pix': detalhePixDia += t.value; break;
+                case 'Débito': detalheDebitoDia += t.value; break;
+                case 'Crédito': detalheCreditoDia += t.value; break;
+                case 'Assinatura': detalheAssinaturasDia += t.value; break;
+                case 'Cartão Presente': detalheCartaoPresenteDia += t.value; break;
+            }
         }
+
         if (t.productDescription && t.products > 0 && t.productSaleValue > 0) {
-            switch (t.productPaymentMethod) { case 'Dinheiro': detalheDinheiroDia += t.productSaleValue; break; case 'Pix': detalhePixDia += t.productSaleValue; break; case 'Débito': detalheDebitoDia += t.productSaleValue; break; case 'Crédito': detalheCreditoDia += t.productSaleValue; break; }
+            switch (t.productPaymentMethod) {
+                case 'Dinheiro': detalheDinheiroDia += t.productSaleValue; break;
+                case 'Pix': detalhePixDia += t.productSaleValue; break;
+                case 'Débito': detalheDebitoDia += t.productSaleValue; break;
+                case 'Crédito': detalheCreditoDia += t.productSaleValue; break;
+            }
         }
+
         if (t.planSaleType && t.planSaleValue > 0) {
-            switch (t.planSalePaymentMethod) { case 'Dinheiro': detalheDinheiroDia += t.planSaleValue; break; case 'Pix': detalhePixDia += t.planSaleValue; break; case 'Débito': detalheDebitoDia += t.planSaleValue; break; case 'Crédito': detalheCreditoDia += t.planSaleValue; break; }
-            if (t.planSaleType === 'Assinatura') { detalheAssinaturasDia += t.planSaleValue; } 
-            else if (t.planSaleType === 'Cartão Presente') { detalheCartaoPresenteDia += t.planSaleValue; }
+            switch (t.planSalePaymentMethod) {
+                case 'Dinheiro': detalheDinheiroDia += t.planSaleValue; break;
+                case 'Pix': detalhePixDia += t.planSaleValue; break;
+                case 'Débito': detalheDebitoDia += t.planSaleValue; break;
+                case 'Crédito': detalheCreditoDia += t.planSaleValue; break;
+            }
         }
     });
+
     Object.values(weeklyData).forEach(dayData => {
       const transactions = dayData.transactions || [];
       transactions.forEach(t => {
@@ -1218,9 +1238,11 @@
       });
       totalValeSemana += dayData.vale || 0;
     });
+
     const comissaoProdutosSemana = totalProdutosVendidosSemana * 5;
     const subtotalComissaoSemana = comissaoServicosSemana + comissaoAssinaturasSemana + comissaoCartaoPresenteSemana + comissaoProdutosSemana;
     const comissaoFinalSemana = subtotalComissaoSemana - totalValeSemana;
+
     summarySpans.faturamentoBruto.textContent = formatCurrency(totalBrutoSemana);
     summarySpans.comissaoServicos.textContent = formatCurrency(comissaoServicosSemana);
     summarySpans.comissaoProdutos.textContent = formatCurrency(comissaoProdutosSemana);
@@ -1229,7 +1251,14 @@
     summarySpans.subtotalComissao.textContent = formatCurrency(subtotalComissaoSemana);
     summarySpans.descontoVale.textContent = `- ${formatCurrency(totalValeSemana)}`;
     summarySpans.comissaoFinal.textContent = formatCurrency(comissaoFinalSemana);
-    detalheAssinaturas.textContent = formatCurrency(detalheAssinaturasDia); detalheCartaoPresente.textContent = formatCurrency(detalheCartaoPresenteDia); detalheDinheiro.textContent = formatCurrency(detalheDinheiroDia); detalhePix.textContent = formatCurrency(detalhePixDia); detalheDebito.textContent = formatCurrency(detalheDebitoDia); detalheCredito.textContent = formatCurrency(detalheCreditoDia); detalheTotalProdutos.textContent = detalheTotalProdutosDia;
+    
+    detalheAssinaturas.textContent = formatCurrency(detalheAssinaturasDia); 
+    detalheCartaoPresente.textContent = formatCurrency(detalheCartaoPresenteDia); 
+    detalheDinheiro.textContent = formatCurrency(detalheDinheiroDia); 
+    detalhePix.textContent = formatCurrency(detalhePixDia); 
+    detalheDebito.textContent = formatCurrency(detalheDebitoDia); 
+    detalheCredito.textContent = formatCurrency(detalheCreditoDia); 
+    detalheTotalProdutos.textContent = detalheTotalProdutosDia;
   }
 
   function listenToAdminReportData() {
@@ -1246,13 +1275,12 @@
     }, (error) => console.error("Erro ao ouvir fechamentos para relatório admin:", error));
   }
 
-  // CÓDIGO CORRIGIDO APLICADO AQUI
   function calculateAdminReport(allEntriesData) {
     const totals = { faturamentoTotalCurrentWeek: 0, dinheiro: 0, pix: 0, debito: 0, credito: 0, qtdAssinaturas: 0, valorAssinaturas: 0, qtdCartaoPresente: 0, valorCartaoPresente: 0, comissaoAssinaturasCartao: 0, faturamentoDiarioDinheiro: 0, faturamentoDiarioPix: 0, faturamentoDiarioDebito: 0, faturamentoDiarioCredito: 0, loja01DailyDinheiro: 0, loja01DailyPix: 0, loja01DailyDebito: 0, loja01DailyCredito: 0, loja01WeeklyTotal: 0, loja02DailyDinheiro: 0, loja02DailyPix: 0, loja02DailyDebito: 0, loja02DailyCredito: 0, loja02WeeklyTotal: 0, };
     const barberWeeklyRevenue = {};
     const today = new Date();
-    const currentDayOfWeek = today.getDay(); // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
-    const currentDayName = weekDays[currentDayOfWeek]; // Será 'Terça', 'Quarta', etc., ou 'undefined'
+    const currentDayOfWeek = today.getDay();
+    const currentDayName = weekDays[currentDayOfWeek];
     const currentWeekIdCalculated = getWeekId(today);
     const barberNames = Object.fromEntries(Object.values(users).filter(u => u.role === 'barber').map(u => [u.barberId, u.name]));
     
@@ -1269,11 +1297,8 @@
                 const transactions = dayData.transactions || [];
 
                 for (const t of transactions) {
-                    // --- Início da Lógica de Faturamento ---
-
-                    // 1. SERVIÇOS
                     if (t.serviceDescription && t.value > 0) {
-                        barberWeeklyRevenue[barberId] += t.value; // Faturamento bruto do barbeiro
+                        barberWeeklyRevenue[barberId] += t.value;
 
                         if (t.paymentMethod === 'Assinatura') {
                             totals.qtdAssinaturas++;
@@ -1285,16 +1310,13 @@
                             totals.comissaoAssinaturasCartao += t.value * 0.50;
                         }
 
-                        // Verifica se é uma entrada REAL de dinheiro
                         if (REAL_PAYMENT_METHODS_ADMIN.includes(t.paymentMethod)) {
                             totals.faturamentoTotalCurrentWeek += t.value;
                             totals[t.paymentMethod.toLowerCase()] += t.value;
                             
-                            // CORREÇÃO AQUI: Adiciona ao total semanal da loja apenas se for entrada real
                             if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.value;
                             else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.value;
 
-                            // Soma para o faturamento DIÁRIO
                             if (currentDayName && dayName === currentDayName) {
                                 totals.faturamentoDiarioDinheiro += (t.paymentMethod === 'Dinheiro' ? t.value : 0);
                                 totals.faturamentoDiarioPix += (t.paymentMethod === 'Pix' ? t.value : 0);
@@ -1316,17 +1338,14 @@
                         }
                     }
 
-                    // 2. VENDA DE PRODUTOS
                     if (t.productDescription && t.products > 0 && t.productSaleValue > 0 && REAL_PAYMENT_METHODS_ADMIN.includes(t.productPaymentMethod)) {
                         barberWeeklyRevenue[barberId] += t.productSaleValue;
                         totals.faturamentoTotalCurrentWeek += t.productSaleValue;
                         totals[t.productPaymentMethod.toLowerCase()] += t.productSaleValue;
 
-                        // CORREÇÃO AQUI: Adiciona ao total semanal da loja
                         if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.productSaleValue;
                         else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.productSaleValue;
 
-                        // Soma para o faturamento DIÁRIO
                         if (currentDayName && dayName === currentDayName) {
                             totals.faturamentoDiarioDinheiro += (t.productPaymentMethod === 'Dinheiro' ? t.productSaleValue : 0);
                             totals.faturamentoDiarioPix += (t.productPaymentMethod === 'Pix' ? t.productSaleValue : 0);
@@ -1347,16 +1366,13 @@
                         }
                     }
 
-                    // 3. VENDA DE PLANOS / VALE PRESENTE
                     if (t.planSaleType && t.planSaleValue > 0 && REAL_PAYMENT_METHODS_ADMIN.includes(t.planSalePaymentMethod)) {
                         totals.faturamentoTotalCurrentWeek += t.planSaleValue;
                         totals[t.planSalePaymentMethod.toLowerCase()] += t.planSaleValue;
 
-                        // CORREÇÃO AQUI: Adiciona ao total semanal da loja
                         if (barberStore === 'loja01') totals.loja01WeeklyTotal += t.planSaleValue;
                         else if (barberStore === 'loja02') totals.loja02WeeklyTotal += t.planSaleValue;
 
-                        // Soma para o faturamento DIÁRIO
                         if (currentDayName && dayName === currentDayName) {
                             totals.faturamentoDiarioDinheiro += (t.planSalePaymentMethod === 'Dinheiro' ? t.planSaleValue : 0);
                             totals.faturamentoDiarioPix += (t.planSalePaymentMethod === 'Pix' ? t.planSaleValue : 0);
@@ -1376,7 +1392,6 @@
                             }
                         }
                     }
-                    // --- Fim da Lógica de Faturamento ---
                 }
             }
         }

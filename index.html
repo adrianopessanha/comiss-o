@@ -1,6 +1,3 @@
-
-
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -462,12 +459,25 @@
 
   const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
+  // FUNÇÃO CORRIGIDA
   function getWeekId(d = new Date()) {
-    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1)/7);
-    return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+    const date = new Date(d.valueOf());
+    const day = date.getDay(); // 0=Sun, 1=Mon, 2=Tue...
+
+    // Se for Domingo (0) ou Segunda (1), consideramos que ainda pertence à semana de trabalho anterior.
+    // Ajustamos a data para o Sábado anterior para que o cálculo do ID da semana seja o correto.
+    if (day === 0) { // Sunday
+        date.setDate(date.getDate() - 1);
+    } else if (day === 1) { // Monday
+        date.setDate(date.getDate() - 2);
+    }
+
+    // Agora, com a data ajustada, usamos o cálculo padrão da semana ISO.
+    let dUTC = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    dUTC.setUTCDate(dUTC.getUTCDate() + 4 - (dUTC.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(dUTC.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((dUTC - yearStart) / 86400000) + 1) / 7);
+    return `${dUTC.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
   }
   
     function getDateForDayOfWeek(weekId, dayIndex) {
@@ -1580,5 +1590,3 @@
 </script>
 </body>
 </html>
-```
-

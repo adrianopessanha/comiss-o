@@ -444,10 +444,8 @@
     "rodrigo@exemplo.com": { password: "0712", role: "barber", barberId: "barber-02", name: "Rodrigo Azevedo", canViewBarbers: ["barber-03", "barber-06"] }, // Rodrigo is leader of Loja 01
     "veloso@exemplo.com": { password: "123", role: "barber", barberId: "barber-03", name: "Veloso" },
     "Wellington@exemplo.com": { password: "123", role: "barber", barberId: "barber-04", name: "Wellington" },
-,
-    
-    "jonata@exemplo.com": { password: "123", role: "barber", barberId: "barber-07", name: "Jonata Silva" } // NOVO BARBEIRO
-  };
+    "jonata@exemplo.com": { password: "123", role: "barber", barberId: "barber-07", name: "Jonata Silva" } // 
+  
 
   // Map barbers to stores
   const barberStoreMap = {
@@ -455,9 +453,9 @@
     "barber-02": "loja01", // Rodrigo
     "barber-03": "loja01", // Veloso
     "barber-04": "loja02", // Wellington
-    "barber-05": "loja02", // Jonata
+    
     "barber-06": "loja01",  // Mauro
-    "barber-07": "loja02"   // NOVO BARBEIRO (Wallace)
+    "barber-07": "loja02"   // Jonata
   };
 
   let db;
@@ -1417,6 +1415,7 @@
 </script>
 </body>
 </html>
+
 
 
 

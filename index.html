@@ -35,7 +35,7 @@ html
 +      </div>
 +      <button id="loginBtn" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">Entrar</button>
 +    </div>
-+    <p class="text-xs text-gray-500 mt-4 text-center">Use admin@exemplo.com (senha:)</p>
++    <p class="text-xs text-gray-500 mt-4 text-center">Use suas credenciais fornecidas pelo administrador.</p>
 +  </div>
 +</div>
 +
@@ -454,11 +454,11 @@ html
 +  
 +  const users = {
 +    "admin@exemplo.com": { password: "753951", role: "admin", name: "Admin" },
-+    "Adrianopessanha@exemplo.com": { password: "123", role: "barber", barberId: "barber-01", name: "Adriano Pessanha" },
++    "adrianopessanha@exemplo.com": { password: "123", role: "barber", barberId: "barber-01", name: "Adriano Pessanha" },
 +    "rodrigo@exemplo.com": { password: "0712", role: "barber", barberId: "barber-02", name: "Rodrigo Azevedo", canViewBarbers: ["barber-03", "barber-06"] },
 +    "veloso@exemplo.com": { password: "123", role: "barber", barberId: "barber-03", name: "Veloso" },
 +    "wellington@exemplo.com": { password: "123", role: "barber", barberId: "barber-04", name: "Wellington" },
-+  "matheus@exemplo.com": { password: "123", role: "barber", barberId: "barber-06", name: "Matheus" },
++    "matheus@exemplo.com": { password: "123", role: "barber", barberId: "barber-06", name: "Matheus" },
 +    "jonata@exemplo.com": { password: "123456", role: "barber", barberId: "barber-07", name: "Jonata Silva" }
 +  };
 +
@@ -634,8 +634,8 @@ html
 +  }
 +
 +  function handleLogin() {
-+    const email = emailInput.value.toLowerCase();
-+    const password = passwordInput.value;
++    const email = emailInput.value.trim().toLowerCase();
++    const password = passwordInput.value.trim();
 +    const user = users[email];
 +
 +    if (user && user.password === password) {
@@ -1780,8 +1780,4 @@ html
 +</script>
 +</body>
 +</html>
-+
-+```
-
-
 
